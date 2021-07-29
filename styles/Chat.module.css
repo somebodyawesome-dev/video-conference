@@ -1,0 +1,11 @@
+.slidingAnimation {
+  animation: slide 700ms ease-out;
+  animation-fill-mode: backwards;
+}
+@keyframes slide {
+  form {
+    width: 0;
+  }
+  to {
+  }
+}

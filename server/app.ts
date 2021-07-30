@@ -19,6 +19,11 @@ const io = new Server(socketServer, options);
 io.on("connection", (socket) => {
   //user socket events goes here
   console.log("some dude joined");
+  socket.on("user-connected", (roomId, id) => {
+    console.log(roomId, id);
+    socket.join(roomId);
+    socket.broadcast.to(roomId).emit("user-connected", { id });
+  });
 });
 
 socketServer.listen(socketPort, () => {

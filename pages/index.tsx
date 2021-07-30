@@ -1,7 +1,38 @@
 import Head from "next/head";
+import { useEffect, useRef, useState } from "react";
 import styles from "../styles/Home.module.css";
+import crypto from "crypto";
+import { GetStaticProps } from "next";
+import Link from "next/link";
+type HomeProps = {
+  randomRoomId: string;
+};
 
-export default function Home() {
+export default function Home(homeProps: HomeProps) {
+  const [roomId, setRoomId] = useState("");
+
+  const idInput = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (!idInput.current) return;
+    console.log(idInput.current.placeholder);
+
+    var type_this = homeProps.randomRoomId;
+    var index = 0;
+
+    const next_letter = function () {
+      try {
+        if (index <= type_this.length) {
+          idInput.current!.placeholder = type_this.substr(0, index++);
+          setTimeout(() => {
+            next_letter();
+          }, 100);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    next_letter();
+  }, [idInput.current]);
   return (
     <div className={styles.container}>
       <Head>
@@ -12,7 +43,12 @@ export default function Home() {
       <div className="h-full w-full grid grid-cols-1 grid-rows-homeGrid">
         <div className="bg-home-bg bg-cover bg-no-repeat shadow-2xl">
           <div className="h-full w-full bg-gradient-to-r from-gray-900 flex flex-col justify-between">
-            <a href="https://www.swatek.tn/"><img src="swatek.svg" className="w-60 h-32 py-3 hover:cursor-pointer"/></a>
+            <a href="https://www.swatek.tn/">
+              <img
+                src="swatek.svg"
+                className="w-60 h-32 py-3 hover:cursor-pointer"
+              />
+            </a>
             <p className="p-7 text-center text-white font-thin text-3xl">
               Start & join meetings{" "}
             </p>
@@ -23,13 +59,35 @@ export default function Home() {
             <input
               className="outline-none transition border-2 border-gray-500 rounded-lg p-2 focus:border-blue-500"
               type="text"
+              ref={idInput}
+              placeholder=""
+              onChange={(e) => {
+                setRoomId(e.target.value);
+              }}
             />
-            <button className="transition duration-500 m-2 p-2 px-3 border-solid border-2 border-blue-500 rounded-lg hover:text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600 focus:ring-opacity-50">
-              Join
-            </button>
+            <Link
+              href={{
+                pathname: "room/[roomId]",
+                query: {
+                  roomId: roomId === "" ? homeProps.randomRoomId : roomId,
+                },
+              }}
+            >
+              <button className="transition duration-500 m-2 p-2 px-3 border-solid border-2 border-blue-500 rounded-lg hover:text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600 focus:ring-opacity-50">
+                Join
+              </button>
+            </Link>
           </div>
         </div>
       </div>
     </div>
   );
 }
+
+export const getStaticProps: GetStaticProps = async (context) => {
+  // const randomRoomId = uuidv4();
+  const randomRoomId = crypto.randomBytes(8).toString("hex");
+  return {
+    props: { randomRoomId },
+  };
+};

@@ -25,6 +25,7 @@
     "@types/express": "^4.17.13",
     "@types/node": "^16.4.5",
     "@types/react": "17.0.15",
+    "@types/uuid": "^8.3.1",
     "autoprefixer": "^10.3.1",
     "eslint": "7.31.0",
     "eslint-config-next": "11.0.1",

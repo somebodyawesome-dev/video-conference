@@ -3,31 +3,14 @@ import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import Chat from "../../components/Chat";
 import VideoChat from "../../components/VideoChat";
 import io, { Socket } from "socket.io-client";
+import crypto from "crypto";
 type RoomProps = {};
 
-const useIOSocket = (url: string) => {
-  const [socket, setSocket] = useState<Socket | null>(null);
-  const [room, setRoom] = useState("xxx-xxx-xxx");
-  const connectTo = (id: string) => {
-    setRoom(id);
-    setSocket(io(url));
-  };
-  // useEffect(() => {
-  // setSocket(io(url));
-  // }, [room]);
-  useEffect(() => {
-    if (!socket) return;
-    socket!.emit("user-connected", room, "wiow");
-    socket!.on("user-sent-msg", () => {});
-  }, [socket]);
-  return [socket, connectTo] as const;
-};
 export default function room({}: RoomProps) {
   const router = useRouter();
   const roomId = router.query.roomId as string;
-
+  //states
   const [socket, setSocket] = useState<Socket | null>(null);
-  //init vars
   const [showChat, setShowChat] = useState(false);
 
   //getting room id
@@ -41,12 +24,7 @@ export default function room({}: RoomProps) {
   //connect to socket server and init events
   useEffect(() => {
     if (!socket) return;
-    // "wiow" bich y3awdhha mba3ed peer id
-    socket.emit("user-connected", roomId, "wiow");
-    socket.on("user-connected", ({ id }) => {
-      console.log(`${id} connected`);
-    });
-    socket.on("user-sent-msg", () => {});
+    initSocket(socket, roomId, "wiow");
   }, [socket]);
   return (
     <div className="h-screen w-screen flex flex-col sm:flex-row ">
@@ -59,18 +37,15 @@ export default function room({}: RoomProps) {
     </div>
   );
 }
-// interface IParams extends ParsedUrlQuery {
-//   roomId: string;
-// }
-// export const getStaticProps: GetStaticProps = async (context) => {
-//   const { roomId } = context.params as IParams;
-//   return {
-//     props: { roomId },
-//   };
-// };
-// export async function getStaticPaths() {
-//   return {
-//     paths: ["/room/*"],
-//     fallback: false,
-//   };
-// }
+const initSocket = (socket: Socket, roomId: string, userId: string) => {
+  // "wiow" bich y3awdhha mba3ed peer id
+
+  socket.emit("user-joined", roomId, userId);
+  socket.on("user-joined", ({ id }) => {
+    //TODO Implement case of user join a room
+    console.log(`${id} connected`);
+  });
+  socket.on("user-disconnected", () => {
+    //TODO handling deisconnection of user
+  });
+};

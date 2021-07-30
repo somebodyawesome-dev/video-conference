@@ -5,6 +5,10 @@ module.exports = {
     extend: {
       gridTemplateRows: {
         homeGrid: "1fr 1fr",
+        chatGrid: "1fr 10fr",
+      },
+      gridTemplateColumns: {
+        chatGrid: "1fr 4fr",
       },
       backgroundImage: (theme) => ({
         "home-bg": "url('/homeBG.jpg')",
@@ -17,6 +21,8 @@ module.exports = {
       borderRadius: ['hover', 'focus'],
       cursor: ['hover', 'focus'],
       width: ['hover', 'focus'],
+      borderRadius: ['hover', 'focus'],
+      borderStyle: ['hover', 'focus'],
     },
   },
   plugins: [],

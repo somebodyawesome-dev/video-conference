@@ -1,14 +1,16 @@
 import Head from "next/head";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "../styles/Home.module.css";
-import { v4 as uuidv4 } from "uuid";
 import crypto from "crypto";
 import { GetStaticProps } from "next";
+import Link from "next/link";
 type HomeProps = {
   randomRoomId: string;
 };
 
 export default function Home(homeProps: HomeProps) {
+  const [roomId, setRoomId] = useState("");
+
   const idInput = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (!idInput.current) return;
@@ -18,11 +20,15 @@ export default function Home(homeProps: HomeProps) {
     var index = 0;
 
     const next_letter = function () {
-      if (index <= type_this.length) {
-        idInput.current!.placeholder = type_this.substr(0, index++);
-        setTimeout(() => {
-          next_letter();
-        }, 100);
+      try {
+        if (index <= type_this.length) {
+          idInput.current!.placeholder = type_this.substr(0, index++);
+          setTimeout(() => {
+            next_letter();
+          }, 100);
+        }
+      } catch (error) {
+        console.log(error);
       }
     };
     next_letter();
@@ -55,10 +61,22 @@ export default function Home(homeProps: HomeProps) {
               type="text"
               ref={idInput}
               placeholder=""
+              onChange={(e) => {
+                setRoomId(e.target.value);
+              }}
             />
-            <button className="transition duration-500 m-2 p-2 px-3 border-solid border-2 border-blue-500 rounded-lg hover:text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600 focus:ring-opacity-50">
-              Join
-            </button>
+            <Link
+              href={{
+                pathname: "room/[roomId]",
+                query: {
+                  roomId: roomId === "" ? homeProps.randomRoomId : roomId,
+                },
+              }}
+            >
+              <button className="transition duration-500 m-2 p-2 px-3 border-solid border-2 border-blue-500 rounded-lg hover:text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600 focus:ring-opacity-50">
+                Join
+              </button>
+            </Link>
           </div>
         </div>
       </div>

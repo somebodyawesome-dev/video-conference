@@ -27,7 +27,7 @@ export default function room({}: RoomProps) {
     initSocket(socket, roomId, "wiow");
   }, [socket]);
   return (
-    <div className="h-screen w-screen flex flex-col sm:flex-row ">
+    <div className="h-screen w-screen flex flex-col overflow-x-hidden sm:flex-row ">
       <VideoChat
         onToggleChat={() => {
           setShowChat(!showChat);

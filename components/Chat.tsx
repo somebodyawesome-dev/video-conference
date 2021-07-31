@@ -6,7 +6,7 @@ export default function Chat({ toggleChat }: ChatProps) {
   const chatStyle =
     "fixed flex flex-col justify-between box-border bg-gray-600 transition-all duration-700 bottom-0 h-1/4 w-full sm:h-full sm:w-2/5  md:w-2/6 lg:w-80 ";
   const displayChat = "right-0 ";
-  const hideChat = "right-full ";
+  const hideChat = "-right-full ";
   return (
     <div className={chatStyle + (toggleChat ? displayChat : hideChat)}>
       {/* {message container} */}

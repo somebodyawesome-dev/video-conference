@@ -19,7 +19,7 @@ const io = new Server(socketServer, options);
 io.on("connection", (socket) => {
   //user socket events goes here
   console.log("some dude joined");
-  socket.on("user-joined", (roomId, id) => {
+  socket.on("user-connected", (roomId, id) => {
     console.log(roomId, id);
     socket.join(roomId);
     socket.broadcast.to(roomId).emit("user-connected", { id });

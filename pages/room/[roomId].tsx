@@ -1,9 +1,9 @@
 import { useRouter } from "next/router";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
-import Chat from "../../components/Chat";
+import Chat, { ChatMessage } from "../../components/Chat";
 import VideoChat from "../../components/VideoChat";
 import io, { Socket } from "socket.io-client";
-import crypto from "crypto";
+
 type RoomProps = {};
 
 export default function room({}: RoomProps) {
@@ -12,7 +12,7 @@ export default function room({}: RoomProps) {
   //states
   const [socket, setSocket] = useState<Socket | null>(null);
   const [showChat, setShowChat] = useState(false);
-
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   //getting room id
   useEffect(() => {
     const initSocket = () => {
@@ -26,6 +26,10 @@ export default function room({}: RoomProps) {
     if (!socket) return;
     initSocket(socket, roomId, "wiow");
   }, [socket]);
+  //handling new message
+  const pushMessage = (message: ChatMessage) => {
+    setMessages([...messages, message]);
+  };
   return (
     <div className="h-screen w-screen flex flex-col sm:flex-row ">
       <VideoChat
@@ -33,16 +37,22 @@ export default function room({}: RoomProps) {
           setShowChat(!showChat);
         }}
       />
-      <Chat toggleChat={showChat} />
+      <Chat
+        toggleChat={showChat}
+        messages={messages}
+        onPushMessage={pushMessage}
+      />
     </div>
   );
 }
+
 const initSocket = (socket: Socket, roomId: string, userId: string) => {
   // "wiow" bich y3awdhha mba3ed peer id
 
-  socket.emit("user-joined", roomId, userId);
-  socket.on("user-joined", ({ id }) => {
+  socket.emit("user-connected", roomId, userId);
+  socket.on("user-connected", ({ id }) => {
     //TODO Implement case of user join a room
+
     console.log(`${id} connected`);
   });
   socket.on("user-disconnected", () => {

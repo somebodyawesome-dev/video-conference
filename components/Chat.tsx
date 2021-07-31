@@ -14,7 +14,7 @@ export type ChatMessage = {
 };
 export default function Chat({ toggleChat, onPushMessage }: ChatProps) {
   const chatStyle =
-    " fixed flex flex-col justify-between box-border bg-gray-600 transition-all duration-700 h-1/4 w-full sm:h-full sm:w-2/5  md:w-2/6 lg:w-80 ";
+    "fixed flex flex-col justify-between box-border bg-gray-600 transition-all duration-700 bottom-0 h-1/4 w-full sm:h-full sm:w-2/5  md:w-2/6 lg:w-80 ";
   const displayChat = "right-0 ";
   const hideChat = "right-full ";
   return (
@@ -39,13 +39,13 @@ export default function Chat({ toggleChat, onPushMessage }: ChatProps) {
       {/* {chat input} */}
       <div className="m-2 p-2 flex box-border justify-center   ring-2  ring-white rounded-lg  focus-within:ring-blue-500">
         <input
-          className="outline-none  transition-all duration-700 w-full border-b-2 border-opacity-0 focus:border-opacity-70  bg-transparent"
+          className="outline-none  transition-all text-white duration-700 w-full border-b-2 border-opacity-0 focus:border-opacity-70  bg-transparent"
           placeholder="type something"
           type="text"
           id="messageInput"
         />
         <div
-          className="rounded-lg mx-1 transition duration-500 box-border p-2 text-white  hover:bg-white hover:text-gray-700"
+          className="rounded-lg mx-1 transition duration-500 box-border p-2 text-white  hover:bg-white hover:text-gray-700 hover:cursor-pointer"
           onClick={() => {
             const text = (
               document.getElementById("messageInput") as HTMLInputElement

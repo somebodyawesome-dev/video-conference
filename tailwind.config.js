@@ -10,6 +10,9 @@ module.exports = {
       gridTemplateColumns: {
         chatGrid: "1fr 4fr",
       },
+      width: {
+        lw: "calc(100vw - 320px)",
+      },
       backgroundImage: (theme) => ({
         "home-bg": "url('/homeBG.jpg')",
         "swatek-bg": "url('/swatek.png')",
@@ -18,11 +21,11 @@ module.exports = {
   },
   variants: {
     extend: {
-      borderRadius: ['hover', 'focus'],
-      cursor: ['hover', 'focus'],
-      width: ['hover', 'focus'],
-      borderRadius: ['hover', 'focus'],
-      borderStyle: ['hover', 'focus'],
+      borderRadius: ["hover", "focus"],
+      cursor: ["hover", "focus"],
+      width: ["hover", "focus"],
+      borderRadius: ["hover", "focus"],
+      borderStyle: ["hover", "focus"],
     },
   },
   plugins: [],

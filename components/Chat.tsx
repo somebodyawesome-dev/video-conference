@@ -4,7 +4,7 @@ import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
 type ChatProps = { toggleChat: boolean };
 export default function Chat({ toggleChat }: ChatProps) {
   const chatStyle =
-    " flex flex-col justify-between box-border bg-gray-600 transition-all duration-700 h-1/4 w-full sm:h-full sm:w-2/5  md:w-2/6 lg:w-80 ";
+    "fixed flex flex-col justify-between box-border bg-gray-600 transition-all duration-700 bottom-0 h-1/4 w-full sm:h-full sm:w-2/5  md:w-2/6 lg:w-80 ";
   const displayChat = "right-0 ";
   const hideChat = "right-full ";
   return (

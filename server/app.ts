@@ -1,6 +1,7 @@
 import express from "express";
 import http from "http";
 import { Server, Socket } from "socket.io";
+import { ChatMessage } from "../components/Chat";
 
 // socket server set up
 const socketPort = 8080;
@@ -23,7 +24,10 @@ io.on("connection", (socket) => {
     console.log(roomId, id);
     socket.join(roomId);
     socket.broadcast.to(roomId).emit("user-connected", { id });
-
+    socket.on("user-sent-message", (message: ChatMessage) => {
+      message.isLocal = false;
+      socket.broadcast.to(roomId).emit("user-sent-message", message);
+    });
     socket.on("disconnect", () => {
       socket.broadcast.to(roomId).emit("user-disconnected", id);
     });

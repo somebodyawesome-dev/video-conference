@@ -13,6 +13,7 @@ export default function room({}: RoomProps) {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [showChat, setShowChat] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const messagesRef = useRef(messages);
   //getting room id
   useEffect(() => {
     const initSocket = () => {
@@ -24,11 +25,38 @@ export default function room({}: RoomProps) {
   //connect to socket server and init events
   useEffect(() => {
     if (!socket) return;
-    initSocket(socket, roomId, "wiow");
+    const initSocket = (userId: string) => {
+      // "wiow" bich y3awdhha mba3ed peer id
+
+      socket.emit("user-connected", roomId, userId);
+      socket.on("user-connected", ({ id }) => {
+        //TODO Implement case of user join a room
+
+        console.log(`${id} connected`);
+      });
+      socket.on("user-disconnected", () => {
+        //TODO handling disconnection of user
+      });
+      socket.on("user-sent-message", (message: ChatMessage) => {
+        pushMessage(message);
+      });
+    };
+
+    initSocket("wiow");
   }, [socket]);
+
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
   //handling new message
+
   const pushMessage = (message: ChatMessage) => {
-    setMessages([...messages, message]);
+    setMessages([...messagesRef.current, message]);
+  };
+  const emitMessage = (message: ChatMessage) => {
+    if (!socket) return;
+    //emit to other users
+    socket.emit("user-sent-message", message);
   };
   return (
     <div className="h-screen w-screen flex flex-col sm:flex-row ">
@@ -40,22 +68,11 @@ export default function room({}: RoomProps) {
       <Chat
         toggleChat={showChat}
         messages={messages}
-        onPushMessage={pushMessage}
+        onPushMessage={(message: ChatMessage) => {
+          pushMessage(message);
+          emitMessage(message);
+        }}
       />
     </div>
   );
 }
-
-const initSocket = (socket: Socket, roomId: string, userId: string) => {
-  // "wiow" bich y3awdhha mba3ed peer id
-
-  socket.emit("user-connected", roomId, userId);
-  socket.on("user-connected", ({ id }) => {
-    //TODO Implement case of user join a room
-
-    console.log(`${id} connected`);
-  });
-  socket.on("user-disconnected", () => {
-    //TODO handling deisconnection of user
-  });
-};

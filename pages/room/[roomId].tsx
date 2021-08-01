@@ -4,6 +4,7 @@ import Chat, { ChatMessage } from "../../components/Chat";
 import VideoChat from "../../components/VideoChat";
 import io, { Socket } from "socket.io-client";
 import { MyPeer } from "../../types/MyPeer";
+import Identification from "../../components/identification";
 
 type RoomProps = {};
 
@@ -67,20 +68,21 @@ export default function room({}: RoomProps) {
     socket.emit("user-sent-message", message);
   };
   return (
-    <div className="h-screen w-screen flex flex-col overflow-x-hidden sm:flex-row ">
-      <VideoChat
-        onToggleChat={() => {
-          setShowChat(!showChat);
-        }}
-      />
-      <Chat
-        toggleChat={showChat}
-        messages={messages}
-        onPushMessage={(message: ChatMessage) => {
-          pushMessage(message);
-          emitMessage(message);
-        }}
-      />
-    </div>
+    // <div className="h-screen w-screen flex flex-col overflow-x-hidden sm:flex-row ">
+    //   <VideoChat
+    //     onToggleChat={() => {
+    //       setShowChat(!showChat);
+    //     }}
+    //   />
+    //   <Chat
+    //     toggleChat={showChat}
+    //     messages={messages}
+    //     onPushMessage={(message: ChatMessage) => {
+    //       pushMessage(message);
+    //       emitMessage(message);
+    //     }}
+    //   />
+    // </div>
+    <Identification />
   );
 }

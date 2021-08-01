@@ -1,6 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
+import styles from "../styles/Chat.module.css";
 type ChatProps = {
   toggleChat: boolean;
   messages: ChatMessage[];
@@ -24,7 +25,9 @@ export default function Chat({
   return (
     <div className={chatStyle + (toggleChat ? displayChat : hideChat)}>
       {/* {message container} */}
-      <div className="m-1 flex-grow flex flex-col overflow-y-auto ring-2 ring-white ring-offset-0 mb-2 rounded-lg ">
+      <div
+        className={`${styles.scroll} m-1 flex-grow flex flex-col overflow-y-auto ring-2 ring-white ring-offset-0 mb-2 rounded-lg `}
+      >
         <div className="m-2 flex flex-col">
           {/* {messages goes here} */}
           {messages.map((ele, index) => {
@@ -60,13 +63,13 @@ export default function Chat({
 }
 const getMessageDomElement = (message: ChatMessage, index: number) => {
   return message.isLocal ? (
-    <div className=" rounded my-2" key={`message-${index}`}>
+    <div className=" rounded mb-1" key={`message-${index}`}>
       <p className="p-2 break-words max-w-4/5  bg-gray-700 inline-block  text-white float-right rounded-l-lg rounded-tr-lg">
         {message.text}
       </p>
     </div>
   ) : (
-    <div className=" rounded my-2" key={`message-${index}`}>
+    <div className=" rounded mb-1" key={`message-${index}`}>
       <p className="p-2 bg-gray-700 inline-block  text-gray-200 rounded-r-lg rounded-bl-lg">
         <span className="text-gray-400 block">
           {message.name === "" ? "user" : message.name}:

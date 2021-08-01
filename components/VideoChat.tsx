@@ -16,7 +16,7 @@ export default function VideoChat({ onToggleChat }: VideoChatProps) {
   const buttonStyle =
     "transform z-10 absolute h-12 w-12 text-white transition-all duration-700 m-2 p-2 px-3 border-solid border-2 border-blue-500 rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600 focus:ring-opacity-50 " +
     (toggled
-      ? "sm:top-1/2 sm:-right-7  sm:-translate-y-1/2 sm:-translate-x-0 translate-x-1/2  -translate-y-0 right-1/2 -bottom-7  "
+      ? "sm:top-1/2 sm:-right-7  sm:-translate-y-1/2 sm:-translate-x-0 translate-x-1/2  -translate-y-0 right-1/2 -bottom-7 bg-blue-500"
       : "sm:right-0 sm:top-1/2  sm:-translate-y-1/2 sm:-translate-x-0 translate-x-1/2 -translate-y-0 bottom-0 right-1/2 ");
 
   return (

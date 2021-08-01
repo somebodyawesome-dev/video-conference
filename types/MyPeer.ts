@@ -1,3 +1,3 @@
 import Peer from "peerjs";
 
-export interface MyPeer extends Peer {}
+export class MyPeer extends Peer {}

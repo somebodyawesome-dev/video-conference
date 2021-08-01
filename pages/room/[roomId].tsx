@@ -4,7 +4,8 @@ import Chat, { ChatMessage } from "../../components/Chat";
 import VideoChat from "../../components/VideoChat";
 import io, { Socket } from "socket.io-client";
 import { MyPeer } from "../../types/MyPeer";
-import Identification from "../../components/identification";
+import Peer from "peerjs";
+import Identification from "../../components/Identification";
 
 type RoomProps = {};
 
@@ -20,7 +21,9 @@ export default function room({}: RoomProps) {
   const messagesRef = useRef(messages);
   //getting room id
   useEffect(() => {
-    // setPeer(new MyPeer())
+    // import("peerjs").then(({ default: Peer }) => {
+    setPeer(new Peer());
+    // });
   }, [router.isReady]);
   //connect to socket server and init events
   useEffect(() => {
@@ -68,21 +71,21 @@ export default function room({}: RoomProps) {
     socket.emit("user-sent-message", message);
   };
   return (
-    // <div className="h-screen w-screen flex flex-col overflow-x-hidden sm:flex-row ">
-    //   <VideoChat
-    //     onToggleChat={() => {
-    //       setShowChat(!showChat);
-    //     }}
-    //   />
-    //   <Chat
-    //     toggleChat={showChat}
-    //     messages={messages}
-    //     onPushMessage={(message: ChatMessage) => {
-    //       pushMessage(message);
-    //       emitMessage(message);
-    //     }}
-    //   />
-    // </div>
-    <Identification />
+    <div className="h-screen w-screen flex flex-col overflow-x-hidden sm:flex-row ">
+      <VideoChat
+        onToggleChat={() => {
+          setShowChat(!showChat);
+        }}
+      />
+      <Chat
+        toggleChat={showChat}
+        messages={messages}
+        onPushMessage={(message: ChatMessage) => {
+          pushMessage(message);
+          emitMessage(message);
+        }}
+      />
+    </div>
+    // <Identification />
   );
 }

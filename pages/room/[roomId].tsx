@@ -1,29 +1,34 @@
 import { useRouter } from "next/router";
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Chat, { ChatMessage } from "../../components/Chat";
 import VideoChat from "../../components/VideoChat";
 import io, { Socket } from "socket.io-client";
-import { MyPeer } from "../../types/MyPeer";
+// import { MyPeer } from "../../types/MyPeer";
+
 import Peer from "peerjs";
 import Identification from "../../components/Identification";
 
 type RoomProps = {};
-
+export type UserInfo = {
+  id: string;
+  username: string;
+};
 export default function room({}: RoomProps) {
   const router = useRouter();
   const roomId = router.query.roomId as string;
   //states
   const [socket, setSocket] = useState<Socket | null>(null);
   const [userId, setUserId] = useState("");
-  const [myPeer, setPeer] = useState<MyPeer | null>(null);
+  const [myPeer, setPeer] = useState<Peer | null>(null);
   const [showChat, setShowChat] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const messagesRef = useRef(messages);
   //getting room id
   useEffect(() => {
-    // import("peerjs").then(({ default: Peer }) => {
-    setPeer(new Peer());
-    // });
+    if (!router.isReady) return;
+    import("peerjs").then(({ default: Peer }) => {
+      setPeer(new Peer());
+    });
   }, [router.isReady]);
   //connect to socket server and init events
   useEffect(() => {
@@ -50,9 +55,9 @@ export default function room({}: RoomProps) {
   //init myPeer and set events
   useEffect(() => {
     if (!myPeer) return;
+
     myPeer.on("open", (id) => {
       setUserId(id);
-
       setSocket(io("http://localhost:8080"));
     });
   }, [myPeer]);
@@ -84,6 +89,7 @@ export default function room({}: RoomProps) {
           pushMessage(message);
           emitMessage(message);
         }}
+        userInfo={{ id: userId, username: "default" }}
       />
     </div>
     // <Identification />

@@ -2,7 +2,7 @@ import express from "express";
 import http from "http";
 import { Server, Socket } from "socket.io";
 import { ChatMessage } from "../components/Chat";
-
+import { ExpressPeerServer } from "peer";
 // socket server set up
 const socketPort = 8080;
 const socketApp = express();
@@ -36,4 +36,15 @@ io.on("connection", (socket) => {
 
 socketServer.listen(socketPort, () => {
   console.log(`socket server is live on ${socketPort}`);
+});
+
+const peerApp = express();
+const server = http.createServer(peerApp);
+const peerServer = ExpressPeerServer(server, {
+  path: "/peerjs",
+  port: 9000,
+});
+peerApp.use("/peerjs", peerServer);
+peerServer.listen(() => {
+  console.log(`we are live on 9000`);
 });

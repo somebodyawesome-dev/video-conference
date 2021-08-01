@@ -1,11 +1,14 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
 import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
 import styles from "../styles/Chat.module.css";
+import { useEffect } from "react";
+import { UserInfo } from "../pages/room/[roomId]";
+
 type ChatProps = {
   toggleChat: boolean;
   messages: ChatMessage[];
   onPushMessage: (message: ChatMessage) => void;
+  userInfo: UserInfo;
 };
 export type ChatMessage = {
   name: string;
@@ -17,7 +20,30 @@ export default function Chat({
   toggleChat,
   onPushMessage,
   messages,
+  userInfo,
 }: ChatProps) {
+  const sendMessage = () => {
+    const messageInput = document.getElementById(
+      "messageInput"
+    ) as HTMLInputElement;
+    const text = messageInput.value;
+    if (text === "") return;
+    messageInput.value = "";
+    onPushMessage({
+      name: userInfo.username,
+      id: userInfo.id,
+      text,
+      isLocal: true,
+    });
+  };
+  useEffect(() => {
+    const scrollToBottom = () => {
+      document
+        .getElementById("dummyDiv")!
+        .scrollIntoView({ behavior: "smooth" });
+    };
+    scrollToBottom();
+  }, [messages]);
   const chatStyle =
     "fixed flex flex-col justify-between box-border bg-gray-600 transition-all duration-700 bottom-0 h-1/4 w-full sm:h-full sm:w-2/5  md:w-2/6 lg:w-80 ";
   const displayChat = "right-0 ";
@@ -33,6 +59,7 @@ export default function Chat({
           {messages.map((ele, index) => {
             return getMessageDomElement(ele, index);
           })}
+          <div id="dummyDiv"></div>
         </div>
       </div>
       {/* {chat input} */}
@@ -42,17 +69,16 @@ export default function Chat({
           placeholder="type something"
           type="text"
           id="messageInput"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              sendMessage();
+            }
+          }}
         />
         <div
           className="rounded-lg mx-1 transition duration-500 box-border p-2 text-white  hover:bg-white hover:text-gray-700 hover:cursor-pointer"
           onClick={() => {
-            const messageInput = document.getElementById(
-              "messageInput"
-            ) as HTMLInputElement;
-            const text = messageInput.value;
-            if (text === "") return;
-            messageInput.value = "";
-            onPushMessage({ name: "", id: "", text, isLocal: true });
+            sendMessage();
           }}
         >
           <FontAwesomeIcon className="" icon={faPaperPlane}></FontAwesomeIcon>

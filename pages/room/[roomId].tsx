@@ -3,6 +3,7 @@ import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import Chat, { ChatMessage } from "../../components/Chat";
 import VideoChat from "../../components/VideoChat";
 import io, { Socket } from "socket.io-client";
+import { MyPeer } from "../../types/MyPeer";
 
 type RoomProps = {};
 
@@ -11,21 +12,19 @@ export default function room({}: RoomProps) {
   const roomId = router.query.roomId as string;
   //states
   const [socket, setSocket] = useState<Socket | null>(null);
+  const [userId, setUserId] = useState("");
+  const [myPeer, setPeer] = useState<MyPeer | null>(null);
   const [showChat, setShowChat] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const messagesRef = useRef(messages);
   //getting room id
   useEffect(() => {
-    const initSocket = () => {
-      if (!router.isReady) return;
-      setSocket(io("http://localhost:8080"));
-    };
-    initSocket();
+    // setPeer(new MyPeer())
   }, [router.isReady]);
   //connect to socket server and init events
   useEffect(() => {
     if (!socket) return;
-    const initSocket = (userId: string) => {
+    const initSocket = () => {
       // "wiow" bich y3awdhha mba3ed peer id
 
       socket.emit("user-connected", roomId, userId);
@@ -42,8 +41,17 @@ export default function room({}: RoomProps) {
       });
     };
 
-    initSocket("wiow");
+    initSocket();
   }, [socket]);
+  //init myPeer and set events
+  useEffect(() => {
+    if (!myPeer) return;
+    myPeer.on("open", (id) => {
+      setUserId(id);
+
+      setSocket(io("http://localhost:8080"));
+    });
+  }, [myPeer]);
 
   useEffect(() => {
     messagesRef.current = messages;

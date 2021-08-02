@@ -96,7 +96,7 @@ const getMessageDomElement = (message: ChatMessage, index: number) => {
     </div>
   ) : (
     <div className=" rounded mb-1" key={`message-${index}`}>
-      <p className="p-2 bg-gray-700 inline-block  text-gray-200 rounded-r-lg rounded-bl-lg">
+      <p className="p-2 break-words max-w-4/5 bg-gray-700 inline-block  text-gray-200 rounded-r-lg rounded-bl-lg">
         <span className="text-gray-400 block">
           {message.name === "" ? "user" : message.name}:
         </span>{" "}

@@ -41,6 +41,9 @@ export default function room({}: RoomProps) {
         //TODO Implement case of user join a room
 
         console.log(`${id} connected`);
+        //call new user
+        if (!myPeer) return;
+        const handleNewUserConnection = (userId: string, stream?: any) => {};
       });
       socket.on("user-disconnected", () => {
         //TODO handling disconnection of user

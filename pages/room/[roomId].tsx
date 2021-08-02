@@ -76,22 +76,22 @@ export default function room({}: RoomProps) {
     socket.emit("user-sent-message", message);
   };
   return (
-    <div className="h-screen w-screen flex flex-col overflow-x-hidden sm:flex-row ">
-      <VideoChat
-        onToggleChat={() => {
-          setShowChat(!showChat);
-        }}
-      />
-      <Chat
-        toggleChat={showChat}
-        messages={messages}
-        onPushMessage={(message: ChatMessage) => {
-          pushMessage(message);
-          emitMessage(message);
-        }}
-        userInfo={{ id: userId, username: "default" }}
-      />
-    </div>
-    // <Identification />
+    // <div className="h-screen w-screen flex flex-col overflow-x-hidden sm:flex-row ">
+    //   <VideoChat
+    //     onToggleChat={() => {
+    //       setShowChat(!showChat);
+    //     }}
+    //   />
+    //   <Chat
+    //     toggleChat={showChat}
+    //     messages={messages}
+    //     onPushMessage={(message: ChatMessage) => {
+    //       pushMessage(message);
+    //       emitMessage(message);
+    //     }}
+    //     userInfo={{ id: userId, username: "default" }}
+    //   />
+    // </div>
+    <Identification />
   );
 }

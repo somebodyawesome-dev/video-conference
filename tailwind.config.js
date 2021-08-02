@@ -2,6 +2,9 @@ module.exports = {
   purge: ["./pages/**/*.{js,ts,jsx,tsx}", "./components/**/*.{js,ts,jsx,tsx}"],
   darkMode: false, // or 'media' or 'class'
   theme: {
+    boxShadow: {
+      custom: "0 0 1px 1.5px #000, 0 0 1.3px 4px #fff",
+    },
     extend: {
       gridTemplateRows: {
         homeGrid: "1fr 1fr",
@@ -12,6 +15,14 @@ module.exports = {
       },
       width: {
         lw: "calc(100vw - 320px)",
+      },
+      zIndex: {
+        251: "251",
+        252: "252",
+        300: "300",
+      },
+      ringOffsetWidth: {
+        "-1": "-1px",
       },
       backgroundImage: (theme) => ({
         "home-bg": "url('/homeBG.jpg')",

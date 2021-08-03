@@ -20,12 +20,20 @@ export default function VideoChat({ onToggleChat }: VideoChatProps) {
       : "sm:right-0 sm:top-1/2  sm:-translate-y-1/2 sm:-translate-x-0 translate-x-1/2 -translate-y-0 bottom-0 right-1/2 ");
 
   return (
-    <div
-      className={
-        toggled ? videoContainer + videoPlusChat : videoContainer + fullVideo
-      }
-    >
-      video calls
+    <div className={videoContainer + (toggled ? videoPlusChat : fullVideo)}>
+      <div className="w-full h-full box-border p-4 transition-all duration-1000 border-2 flex flex-wrap justify-center  items-center   ">
+        <div className="bg-red-700 border-2 w-80 min-h-80">
+          <div>wiow</div>
+          <div>wiow</div>
+          <div>wiow</div>
+          <div>wiow</div>
+          <div>wiow</div>
+        </div>
+        <div className="bg-red-700 border-2 w-80 max-h-80">grid</div>
+        <div className="bg-red-700 border-2 w-80 max-h-80">grid</div>
+        {/* <div className="bg-red-700 border-2  ">grid</div>
+        <div className="bg-red-700 border-2  ">grid</div> */}
+      </div>
       <button
         className={buttonStyle}
         onClick={() => {

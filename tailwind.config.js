@@ -9,9 +9,13 @@ module.exports = {
       gridTemplateRows: {
         homeGrid: "1fr 1fr",
         chatGrid: "1fr 10fr",
+        videoChatGrid: "repeat(auto-fit,minmax(340px,1fr))",
       },
       gridTemplateColumns: {
-        chatGrid: "1fr 4fr",
+        videoChatGrid: "repeat(auto-fit,minmax(340px,1fr))",
+      },
+      gridAutoRows: {
+        videoChat: "minmax(100px, auto)",
       },
       width: {
         lw: "calc(100vw - 320px)",

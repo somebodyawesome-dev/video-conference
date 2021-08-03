@@ -2,12 +2,16 @@ import { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCaretDown, faCaretUp } from "@fortawesome/free-solid-svg-icons";
 
-export default function Identification() {
+type usernameProps = {
+  setUser: (username: string) => void;
+};
+
+export default function Identification({ setUser }: usernameProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [username, setUsername] = useState("");
 
   useEffect(() => {
     if (!videoRef.current) return;
-    console.log("selem sehpi");
 
     navigator.mediaDevices
       .getUserMedia({
@@ -26,7 +30,7 @@ export default function Identification() {
   const [dropdown, Setdropdown] = useState(false);
 
   return (
-    <div className="flex flex-col items-stretch z-251 text-xl absolute inset-0 m-0 p-0">
+    <div className="flex flex-col items-stretch z-251 text-xl absolute bg-gray-800 inset-0 m-0 p-0">
       <div className="w-screen h-screen">
         <video
           ref={videoRef}
@@ -43,9 +47,17 @@ export default function Identification() {
               type="text"
               placeholder="Merci de saisir votre nom ici"
               className="bg-white border-none outline-none rounded text-base text-gray-900 py-2 px-0 text-center w-80 focus:shadow-custom"
+              onChange={(e) => {
+                setUsername(e.target.value);
+              }}
             />
             <div className="mt-4 ">
-              <div className="bg-blue-600 border-2 border-solid select-none border-blue-600 rounded box-border text-white inline-block text-base py-2 px-4 relative text-center w-80 cursor-pointer">
+              <div
+                onClick={() => {
+                  setUser(username);
+                }}
+                className="bg-blue-600 border-2 border-solid select-none border-blue-600 rounded box-border text-white inline-block text-base py-2 px-4 relative text-center w-80 cursor-pointer"
+              >
                 Rejoindre Réunion
                 {/* <div
                   className="rounded items-center flex h-full justify-center absolute right-0 top-0 w-9 hover:bg-blue-800"

@@ -19,6 +19,7 @@ export default function room({}: RoomProps) {
   //states
   const [socket, setSocket] = useState<Socket | null>(null);
   const [userId, setUserId] = useState("");
+  const [username, setUsername] = useState("");
   const [myPeer, setPeer] = useState<Peer | null>(null);
   const [showChat, setShowChat] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -95,6 +96,10 @@ export default function room({}: RoomProps) {
     //     userInfo={{ id: userId, username: "default" }}
     //   />
     // </div>
-    <Identification />
+    <Identification
+      setUser={(user: string) => {
+        setUsername(user);
+      }}
+    />
   );
 }

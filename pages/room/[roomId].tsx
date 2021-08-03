@@ -13,6 +13,10 @@ export type UserInfo = {
   id: string;
   username: string;
 };
+type VideoChat = {
+  stream: MediaStream;
+  isfocused: boolean;
+};
 export default function room({}: RoomProps) {
   const router = useRouter();
   const roomId = router.query.roomId as string;
@@ -23,6 +27,7 @@ export default function room({}: RoomProps) {
   const [myPeer, setPeer] = useState<Peer | null>(null);
   const [showChat, setShowChat] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [videos, setViedos] = useState<VideoChat[]>([]);
   const messagesRef = useRef(messages);
   //getting room id
   useEffect(() => {
@@ -44,7 +49,12 @@ export default function room({}: RoomProps) {
         console.log(`${id} connected`);
         //call new user
         if (!myPeer) return;
-        const handleNewUserConnection = (userId: string, stream?: any) => {};
+        const handleNewUserConnection = (
+          userId: string,
+          stream?: MediaStream
+        ) => {
+          const call = myPeer.call(userId, stream ?? new MediaStream());
+        };
       });
       socket.on("user-disconnected", () => {
         //TODO handling disconnection of user

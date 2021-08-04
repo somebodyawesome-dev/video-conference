@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCaretDown, faCaretUp } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCamera,
+  faCaretDown,
+  faCaretUp,
+  faMicrophone,
+  faPhone,
+} from "@fortawesome/free-solid-svg-icons";
 
 type Props = {
   setUser: (username: string) => void;
@@ -80,6 +86,28 @@ export default function Identification({ setUser, addVideoStream }: Props) {
                     </div>
                   )}
                 </div> */}
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-center mt-6 mb-4 mx-0 w-full select-none">
+            <div className="my-0 mx-3 items-center box-border flex relative z-250 pointer-events-none justify-between bg-gray-900 rounded-md p-2 text-center w-40">
+              <div className="text-white inline-block text-center ml-1 p-2 hover:bg-gray-500">
+                <div className="rounded cursor-pointer flex ">
+                  <FontAwesomeIcon icon={faMicrophone}></FontAwesomeIcon>
+                </div>
+              </div>
+              <div className="text-white cursor-pointer inline-block text-center mx-5 p-2 hover:bg-gray-500">
+                <div className="rounded cursor-pointer flex ">
+                  <FontAwesomeIcon icon={faCamera}></FontAwesomeIcon>
+                </div>
+              </div>
+              <div className="bg-red-600 cursor-pointer inline-block text-center rounded-md mr-1 p-2 hover:bg-gray-500">
+                <div className="rounded cursor-pointer flex ">
+                  <FontAwesomeIcon
+                    icon={faPhone}
+                    className="text-white"
+                  ></FontAwesomeIcon>
+                </div>
               </div>
             </div>
           </div>

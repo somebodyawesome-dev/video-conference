@@ -13,7 +13,7 @@ export type UserInfo = {
   id: string;
   username: string;
 };
-type VideoChat = {
+export type Video = {
   stream: MediaStream;
   isfocused: boolean;
 };
@@ -27,9 +27,10 @@ export default function room({}: RoomProps) {
   const [myPeer, setPeer] = useState<Peer | null>(null);
   const [showChat, setShowChat] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [videos, setViedos] = useState<VideoChat[]>([]);
+  const [videos, setViedos] = useState<Video[]>([]);
   const messagesRef = useRef(messages);
   //getting room id
+
   useEffect(() => {
     if (!router.isReady) return;
     import("peerjs").then(({ default: Peer }) => {
@@ -79,6 +80,10 @@ export default function room({}: RoomProps) {
   useEffect(() => {
     messagesRef.current = messages;
   }, [messages]);
+
+  useEffect(() => {
+    console.log(videos);
+  }, [videos]);
   //handling new message
 
   const pushMessage = (message: ChatMessage) => {
@@ -90,26 +95,32 @@ export default function room({}: RoomProps) {
     socket.emit("user-sent-message", message);
   };
   return (
-    // <div className="h-screen w-screen flex flex-col overflow-x-hidden sm:flex-row ">
-    //   <VideoChat
-    //     onToggleChat={() => {
-    //       setShowChat(!showChat);
-    //     }}
-    //   />
-    //   <Chat
-    //     toggleChat={showChat}
-    //     messages={messages}
-    //     onPushMessage={(message: ChatMessage) => {
-    //       pushMessage(message);
-    //       emitMessage(message);
-    //     }}
-    //     userInfo={{ id: userId, username: "default" }}
-    //   />
-    // </div>
-    <Identification
-      setUser={(user: string) => {
-        setUsername(user);
-      }}
-    />
+    <div className="h-screen w-screen flex flex-col overflow-x-hidden sm:flex-row ">
+      {username === "" ? (
+        <Identification
+          setUser={(user: string) => {
+            setUsername(user);
+          }}
+          addVideoStream={(stream: MediaStream) => {
+            setViedos([...videos, { isfocused: false, stream }]);
+          }}
+        />
+      ) : null}
+      <VideoChat
+        onToggleChat={() => {
+          setShowChat(!showChat);
+        }}
+        videos={videos}
+      />
+      <Chat
+        toggleChat={showChat}
+        messages={messages}
+        onPushMessage={(message: ChatMessage) => {
+          pushMessage(message);
+          emitMessage(message);
+        }}
+        userInfo={{ id: userId, username }}
+      />
+    </div>
   );
 }

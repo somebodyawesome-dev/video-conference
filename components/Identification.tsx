@@ -2,11 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCaretDown, faCaretUp } from "@fortawesome/free-solid-svg-icons";
 
-type usernameProps = {
+type Props = {
   setUser: (username: string) => void;
+  addVideoStream: (stream: MediaStream) => void;
 };
 
-export default function Identification({ setUser }: usernameProps) {
+export default function Identification({ setUser, addVideoStream }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [username, setUsername] = useState("");
 
@@ -21,6 +22,7 @@ export default function Identification({ setUser }: usernameProps) {
         let video = videoRef.current!;
         video.srcObject = stream;
         video.play();
+        addVideoStream(stream);
       })
       .catch((err) => {
         console.error("error:", err);

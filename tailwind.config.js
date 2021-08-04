@@ -15,7 +15,7 @@ module.exports = {
         videoChatGrid: "repeat(auto-fit,minmax(340px,1fr))",
       },
       gridAutoRows: {
-        videoChat: "minmax(100px, auto)",
+        videoChat: "minmax(100px, 100vh)",
       },
       width: {
         lw: "calc(100vw - 320px)",
@@ -24,6 +24,8 @@ module.exports = {
         251: "251",
         252: "252",
         300: "300",
+        "-100": "-100",
+        "-1": "-1",
       },
       ringOffsetWidth: {
         "-1": "-1px",
@@ -38,6 +40,22 @@ module.exports = {
       "1/2": "50%",
       "3/4": "75%",
       "4/5": "80%",
+      full: "100%",
+    },
+    minWidth: {
+      0: "0",
+      "1/4": "25%",
+      "1/2": "50%",
+      "3/4": "75%",
+      full: "100%",
+    },
+    minHeight: {
+      0: "0",
+      "1/4": "25%",
+      "1/2": "50%",
+      "3/4": "75%",
+      full: "100%",
+      1: "100px",
     },
   },
   variants: {

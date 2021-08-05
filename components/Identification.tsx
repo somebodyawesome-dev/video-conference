@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faCamera,
-  faCaretDown,
-  faCaretUp,
+  faVideo,
+  faVideoSlash,
   faMicrophone,
   faPhone,
+  faMicrophoneSlash,
 } from "@fortawesome/free-solid-svg-icons";
 
 type Props = {
@@ -16,26 +16,38 @@ type Props = {
 export default function Identification({ setUser, addVideoStream }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [username, setUsername] = useState("");
+  const [muted, setMuted] = useState(true);
+  const [video, setVideo] = useState(false);
 
   useEffect(() => {
     if (!videoRef.current) return;
+    if (!muted || video) {
+      navigator.mediaDevices
+        .getUserMedia({
+          video: video,
+          audio: !muted,
+        })
+        .then((stream) => {
+          let video = videoRef.current!;
+          video.srcObject = stream;
+          video.muted = true;
+          if (video) {
+            video.play();
+          } else {
+            console.log(video);
 
-    navigator.mediaDevices
-      .getUserMedia({
-        video: {},
-      })
-      .then((stream) => {
-        let video = videoRef.current!;
-        video.srcObject = stream;
-        video.play();
-        addVideoStream(stream);
-      })
-      .catch((err) => {
-        console.error("error:", err);
-      });
-  }, []);
-
-  const [dropdown, Setdropdown] = useState(false);
+            stream.getTracks().forEach((track) => {
+              track.stop();
+            });
+          }
+        })
+        .catch((err) => {
+          console.error("error:", err);
+        });
+    } else {
+      videoRef.current!.srcObject = null;
+    }
+  }, [muted, video]);
 
   return (
     <div className="flex flex-col items-stretch z-251 text-xl absolute bg-gray-800 inset-0 m-0 p-0">
@@ -63,46 +75,46 @@ export default function Identification({ setUser, addVideoStream }: Props) {
               <div
                 onClick={() => {
                   setUser(username);
+                  addVideoStream(videoRef.current!.srcObject as MediaStream);
                 }}
                 className="bg-blue-600 border-2 border-solid select-none border-blue-600 rounded box-border text-white inline-block text-base py-2 px-4 relative text-center w-80 cursor-pointer"
               >
                 Rejoindre Réunion
-                {/* <div
-                  className="rounded items-center flex h-full justify-center absolute right-0 top-0 w-9 hover:bg-blue-800"
-                  onClick={() => {
-                    Setdropdown(!dropdown);
-                  }}
-                >
-                  {!dropdown && (
-                    <FontAwesomeIcon icon={faCaretDown}></FontAwesomeIcon>
-                  )}
-                  {dropdown && (
-                    <div className="absolute top-full right-0 bg-white p-0 rounded box-content text-blue-300 max-h-96 z-">
-                      <div className="w-80 py-2 px-0">
-                        <div className="items-center text-gray-900 cursor-pointer flex h-12 text-base py-0 px-4 select-none">
-                          Rejoignez sans microphone
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div> */}
               </div>
             </div>
           </div>
           <div className="flex justify-center mt-6 mb-4 mx-0 w-full select-none">
-            <div className="my-0 mx-3 items-center box-border flex relative z-250 pointer-events-none justify-between bg-gray-900 rounded-md p-2 text-center w-40">
-              <div className="text-white inline-block text-center ml-1 p-2 hover:bg-gray-500">
-                <div className="rounded cursor-pointer flex ">
-                  <FontAwesomeIcon icon={faMicrophone}></FontAwesomeIcon>
+            <div className="my-0 mx-3 items-center box-border flex relative z-250 justify-between bg-gray-900 rounded-md p-2 text-center w-48">
+              <div
+                className="text-white cursor-pointer text-center rounded-md ml-1 p-2 hover:bg-gray-500"
+                onClick={() => {
+                  setMuted(!muted);
+                }}
+              >
+                <div className="rounded flex ">
+                  {!muted && (
+                    <FontAwesomeIcon icon={faMicrophone}></FontAwesomeIcon>
+                  )}
+                  {muted && (
+                    <FontAwesomeIcon icon={faMicrophoneSlash}></FontAwesomeIcon>
+                  )}
                 </div>
               </div>
-              <div className="text-white cursor-pointer inline-block text-center mx-5 p-2 hover:bg-gray-500">
-                <div className="rounded cursor-pointer flex ">
-                  <FontAwesomeIcon icon={faCamera}></FontAwesomeIcon>
+              <div
+                className="text-white cursor-pointer text-center rounded-md mx-5 p-2 hover:bg-gray-500"
+                onClick={() => {
+                  setVideo(!video);
+                }}
+              >
+                <div className="rounded flex ">
+                  {video && <FontAwesomeIcon icon={faVideo}></FontAwesomeIcon>}
+                  {!video && (
+                    <FontAwesomeIcon icon={faVideoSlash}></FontAwesomeIcon>
+                  )}
                 </div>
               </div>
-              <div className="bg-red-600 cursor-pointer inline-block text-center rounded-md mr-1 p-2 hover:bg-gray-500">
-                <div className="rounded cursor-pointer flex ">
+              <div className="bg-red-600 text-center cursor-pointer rounded-md mr-1 p-2 hover:bg-red-400">
+                <div className="rounded flex ">
                   <FontAwesomeIcon
                     icon={faPhone}
                     className="text-white"

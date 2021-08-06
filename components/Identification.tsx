@@ -74,6 +74,7 @@ export default function Identification({ setUser, addVideoStream }: Props) {
             <div className="mt-4 ">
               <div
                 onClick={() => {
+                  if (username === "") return;
                   setUser(username);
                   addVideoStream(videoRef.current!.srcObject as MediaStream);
                 }}

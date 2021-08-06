@@ -37,17 +37,18 @@ export default function VideoChat({ onToggleChat, videos }: VideoChatProps) {
         alignItems: "center",
       }}
     >
-      <div className="w-full h-4/5 box-border p-4 transition-all duration-1000 border-2 flex flex-col justify-center items-center flex-wrap ">
+      <div
+        id="camera-container"
+        className="camera-container w-full h-4/5  transition-all duration-1000 border-2 flex flex-wrap justify-center content-center align-middle items-center "
+      >
         {/* {flex flex-col flex-wrap } */}
         {videos.map((ele, index) => {
           return (
             <div
-              className="relative m-2 max-w-full max-h-full min-w-1/4 min-h-1 w-1/2 h-full flex-grow"
+              className="camera relative overflow-hidden align-middle self-center rounded-lg inline-block"
               key={`videoComp-${index}`}
             >
-              <div className="bg-cover absolute w-full h-full rounded-lg top-0 left-0 -z-0 ">
-                <VideoComp stream={ele.stream} />
-              </div>
+              <VideoComp stream={ele.stream} />
             </div>
           );
         })}

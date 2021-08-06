@@ -13,7 +13,7 @@ export default function VideoComp({ stream }: VideoProps) {
 
   return (
     <video
-      className="bg-cover absolute w-full h-full rounded-lg top-0 left-0 "
+      className="absolute w-full h-full rounded-lg top-0 left-0"
       ref={videoRef}
       autoPlay
     ></video>

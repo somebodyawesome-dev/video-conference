@@ -7,6 +7,7 @@ import io, { Socket } from "socket.io-client";
 
 import Peer from "peerjs";
 import Identification from "../../components/Identification";
+import { resizeVideoGrid } from "../../utils/VideoGridHandler";
 
 type RoomProps = {};
 export type UserInfo = {
@@ -27,44 +28,73 @@ export default function room({}: RoomProps) {
   const [myPeer, setPeer] = useState<Peer | null>(null);
   const [showChat, setShowChat] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [videos, setViedos] = useState<Video[]>([]);
   const messagesRef = useRef(messages);
-  //getting room id
-
+  const [videos, setViedos] = useState<Video[]>([]);
+  const videosRef = useRef(videos);
+  const peers = useRef<any>({});
+  //utility
+  const addVideoStream = (stream: MediaStream) => {
+    setViedos([...videosRef.current, { isfocused: false, stream }]);
+  };
+  //
   useEffect(() => {
-    if (!router.isReady) return;
-    import("peerjs").then(({ default: Peer }) => {
-      setPeer(new Peer());
-    });
+    console.log("load event set");
+    window.addEventListener(
+      "load",
+      function (event) {
+        resizeVideoGrid();
+        window.onresize = resizeVideoGrid;
+      },
+      false
+    );
+  }, []);
+  //getting room id
+  useEffect(() => {
+    // if (!router.isReady) return;
+    // import("peerjs").then(({ default: Peer }) => {
+    //   setPeer(new Peer());
+    // });
   }, [router.isReady]);
   //connect to socket server and init events
   useEffect(() => {
     if (!socket) return;
     const initSocket = () => {
-      // "wiow" bich y3awdhha mba3ed peer id
-
-      socket.emit("user-connected", roomId, userId);
       socket.on("user-connected", ({ id }) => {
         //TODO Implement case of user join a room
-
         console.log(`${id} connected`);
         //call new user
         if (!myPeer) return;
         const handleNewUserConnection = (
           userId: string,
-          stream?: MediaStream
+          stream: MediaStream
         ) => {
+          //call the new peer user
           const call = myPeer.call(userId, stream ?? new MediaStream());
+          //handling the other user stream
+          call.on("stream", (stream) => {
+            addVideoStream(stream);
+            call.on("close", () => {
+              setViedos(
+                videosRef.current.filter((ele) => {
+                  return ele.stream !== stream;
+                })
+              );
+            });
+          });
+          console.log("use length :" + videos.length);
+          peers.current[userId] = call;
         };
+        handleNewUserConnection(id, videosRef.current[0].stream);
       });
-      socket.on("user-disconnected", () => {
+      socket.on("user-disconnected", (peerId) => {
         //TODO handling disconnection of user
+        if (peers.current[peerId]) peers.current[peerId].close();
       });
       socket.on("user-sent-message", (message: ChatMessage) => {
         pushMessage(message);
       });
+      socket.emit("user-connected", roomId, userId);
     };
-
     initSocket();
   }, [socket]);
   //init myPeer and set events
@@ -75,14 +105,23 @@ export default function room({}: RoomProps) {
       setUserId(id);
       setSocket(io("http://localhost:8080"));
     });
+    //answer calls from other users
+    myPeer.on("call", (call) => {
+      call.answer(videosRef.current[0].stream);
+      call.on("stream", (stream) => {
+        addVideoStream(stream);
+      });
+    });
   }, [myPeer]);
 
+  //update refrences if needed
   useEffect(() => {
     messagesRef.current = messages;
   }, [messages]);
 
   useEffect(() => {
-    console.log(videos);
+    resizeVideoGrid();
+    videosRef.current = videos;
   }, [videos]);
   //handling new message
 
@@ -102,7 +141,11 @@ export default function room({}: RoomProps) {
             setUsername(user);
           }}
           addVideoStream={(stream: MediaStream) => {
-            setViedos([...videos, { isfocused: false, stream }]);
+            addVideoStream(stream);
+            if (!router.isReady) return;
+            import("peerjs").then(({ default: Peer }) => {
+              setPeer(new Peer());
+            });
           }}
         />
       ) : null}

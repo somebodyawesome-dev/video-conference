@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import Chat, { ChatMessage } from "../../components/Chat";
 import VideoChat from "../../components/VideoChat";
 import io, { Socket } from "socket.io-client";
@@ -15,8 +15,28 @@ export type UserInfo = {
   username: string;
 };
 export type Video = {
+  peer: string;
+  username: string;
   stream: MediaStream;
   isfocused: boolean;
+};
+
+const useVideoStream = () => {
+  const [video, setvideo] = useState<Video>({
+    stream: new MediaStream(),
+    isfocused: false,
+    peer: "",
+    username: "",
+  });
+  const setStream = (stream: MediaStream) => {
+    setvideo({ ...video, stream });
+  };
+  const setPeer = (peer: string) => {
+    setvideo({ ...video, peer });
+  };
+  const setFocus = (isfocused: boolean) => {
+    setvideo({ ...video, isfocused });
+  };
 };
 export default function room({}: RoomProps) {
   const router = useRouter();
@@ -29,12 +49,17 @@ export default function room({}: RoomProps) {
   const [showChat, setShowChat] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const messagesRef = useRef(messages);
+  const [localVideo, setLocalVideo] = useState<Video | null>(null);
+  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [videos, setViedos] = useState<Video[]>([]);
   const videosRef = useRef(videos);
   const peers = useRef<any>({});
   //utility
   const addVideoStream = (stream: MediaStream) => {
-    setViedos([...videosRef.current, { isfocused: false, stream }]);
+    setViedos([
+      ...videosRef.current,
+      { isfocused: false, stream, peer: "", username: "" },
+    ]);
   };
   //
   useEffect(() => {
@@ -69,6 +94,7 @@ export default function room({}: RoomProps) {
           stream: MediaStream
         ) => {
           //call the new peer user
+
           const call = myPeer.call(userId, stream ?? new MediaStream());
           //handling the other user stream
           call.on("stream", (stream) => {
@@ -84,11 +110,12 @@ export default function room({}: RoomProps) {
           console.log("use length :" + videos.length);
           peers.current[userId] = call;
         };
-        handleNewUserConnection(id, videosRef.current[0].stream);
+        handleNewUserConnection(id, localStream!);
       });
       socket.on("user-disconnected", (peerId) => {
         //TODO handling disconnection of user
         if (peers.current[peerId]) peers.current[peerId].close();
+        //remove stream from the state
       });
       socket.on("user-sent-message", (message: ChatMessage) => {
         pushMessage(message);
@@ -107,9 +134,16 @@ export default function room({}: RoomProps) {
     });
     //answer calls from other users
     myPeer.on("call", (call) => {
-      call.answer(videosRef.current[0].stream);
+      call.answer(localStream!);
       call.on("stream", (stream) => {
         addVideoStream(stream);
+        call.on("close", () => {
+          setViedos(
+            videosRef.current.filter((ele) => {
+              return ele.stream !== stream;
+            })
+          );
+        });
       });
     });
   }, [myPeer]);
@@ -120,8 +154,8 @@ export default function room({}: RoomProps) {
   }, [messages]);
 
   useEffect(() => {
-    resizeVideoGrid();
     videosRef.current = videos;
+    resizeVideoGrid();
   }, [videos]);
   //handling new message
 
@@ -133,6 +167,7 @@ export default function room({}: RoomProps) {
     //emit to other users
     socket.emit("user-sent-message", message);
   };
+  useEffect(() => {}, [localStream]);
   return (
     <div className="h-screen w-screen flex flex-col overflow-x-hidden sm:flex-row ">
       {username === "" ? (
@@ -141,29 +176,44 @@ export default function room({}: RoomProps) {
             setUsername(user);
           }}
           addVideoStream={(stream: MediaStream) => {
-            addVideoStream(stream);
+            // addVideoStream(stream);
+            setLocalStream(stream);
             if (!router.isReady) return;
             import("peerjs").then(({ default: Peer }) => {
               setPeer(new Peer());
             });
           }}
         />
-      ) : null}
-      <VideoChat
-        onToggleChat={() => {
-          setShowChat(!showChat);
-        }}
-        videos={videos}
-      />
-      <Chat
-        toggleChat={showChat}
-        messages={messages}
-        onPushMessage={(message: ChatMessage) => {
-          pushMessage(message);
-          emitMessage(message);
-        }}
-        userInfo={{ id: userId, username }}
-      />
+      ) : (
+        <Fragment>
+          {" "}
+          <VideoChat
+            localStream={
+              localStream
+                ? {
+                    stream: localStream,
+                    isfocused: false,
+                    peer: userId,
+                    username,
+                  }
+                : null
+            }
+            onToggleChat={() => {
+              setShowChat(!showChat);
+            }}
+            videos={videos}
+          />
+          <Chat
+            toggleChat={showChat}
+            messages={messages}
+            onPushMessage={(message: ChatMessage) => {
+              pushMessage(message);
+              emitMessage(message);
+            }}
+            userInfo={{ id: userId, username }}
+          />
+        </Fragment>
+      )}
     </div>
   );
 }

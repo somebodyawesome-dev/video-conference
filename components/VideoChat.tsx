@@ -9,8 +9,13 @@ import VideoComp from "./Video";
 type VideoChatProps = {
   onToggleChat: Function;
   videos: Video[];
+  localStream: Video | null;
 };
-export default function VideoChat({ onToggleChat, videos }: VideoChatProps) {
+export default function VideoChat({
+  onToggleChat,
+  videos,
+  localStream,
+}: VideoChatProps) {
   const [toggled, setToggled] = useState(false);
   const [videosS, setVideo] = useState();
   useEffect(() => {
@@ -37,6 +42,11 @@ export default function VideoChat({ onToggleChat, videos }: VideoChatProps) {
         alignItems: "center",
       }}
     >
+      {localStream ? (
+        <div className="absolute left-0 top-1/2 w-56 h-1/2">
+          <VideoComp stream={localStream.stream} />
+        </div>
+      ) : null}
       <div
         id="camera-container"
         className="camera-container w-full h-4/5  transition-all duration-1000 border-2 flex flex-wrap justify-center content-center align-middle items-center "

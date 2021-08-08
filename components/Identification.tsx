@@ -11,6 +11,7 @@ import {
 type Props = {
   setUser: (username: string) => void;
   addVideoStream: (stream: MediaStream) => void;
+  joinChat: () => void;
 };
 
 export default function Identification({ setUser, addVideoStream }: Props) {

@@ -20,7 +20,7 @@ export default function VideoChat({
   const [videosS, setVideo] = useState();
   useEffect(() => {
     videos.map((ele, index) => {
-      console.log(index);
+      // console.log(index);
     });
   }, [videos]);
   const videoContainer =

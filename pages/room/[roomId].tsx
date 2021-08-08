@@ -86,7 +86,6 @@ export default function room({}: RoomProps) {
     const initSocket = () => {
       socket.on("user-connected", ({ id }) => {
         //TODO Implement case of user join a room
-        console.log(`${id} connected`);
         //call new user
         if (!myPeer) return;
         const handleNewUserConnection = (
@@ -95,10 +94,15 @@ export default function room({}: RoomProps) {
         ) => {
           //call the new peer user
 
-          const call = myPeer.call(userId, stream ?? new MediaStream());
+          const call = myPeer.call(userId, stream);
+
           //handling the other user stream
           call.on("stream", (stream) => {
             addVideoStream(stream);
+            let conn = myPeer.connect(userId, { reliable: true });
+            conn.on("open", () => {
+              conn.send({ peerId: userId, peerName: username });
+            });
             call.on("close", () => {
               setViedos(
                 videosRef.current.filter((ele) => {
@@ -107,7 +111,6 @@ export default function room({}: RoomProps) {
               );
             });
           });
-          console.log("use length :" + videos.length);
           peers.current[userId] = call;
         };
         handleNewUserConnection(id, localStream!);
@@ -131,18 +134,28 @@ export default function room({}: RoomProps) {
     myPeer.on("open", (id) => {
       setUserId(id);
       setSocket(io("http://localhost:8080"));
-    });
-    //answer calls from other users
-    myPeer.on("call", (call) => {
-      call.answer(localStream!);
-      call.on("stream", (stream) => {
-        addVideoStream(stream);
-        call.on("close", () => {
-          setViedos(
-            videosRef.current.filter((ele) => {
-              return ele.stream !== stream;
-            })
-          );
+
+      //answer calls from other users
+      myPeer.on("connection", (cb) => {
+        cb.on("open", () => {
+          console.log(cb.peer);
+          cb.on("data", (data) => {
+            console.log(`${data.peerName}  `);
+          });
+        });
+      });
+      myPeer.on("call", (call) => {
+        call.answer(localStream!);
+
+        call.on("stream", (stream) => {
+          addVideoStream(stream);
+          call.on("close", () => {
+            setViedos(
+              videosRef.current.filter((ele) => {
+                return ele.stream !== stream;
+              })
+            );
+          });
         });
       });
     });
@@ -180,7 +193,49 @@ export default function room({}: RoomProps) {
             setLocalStream(stream);
             if (!router.isReady) return;
             import("peerjs").then(({ default: Peer }) => {
-              setPeer(new Peer());
+              setPeer(
+                new Peer(undefined, {
+                  debug: 2,
+                  config: {
+                    iceServers: [
+                      { urls: "stun:stun01.sipphone.com" },
+                      { urls: "stun:stun.ekiga.net" },
+                      { urls: "stun:stun.fwdnet.net" },
+                      { urls: "stun:stun.ideasip.com" },
+                      { urls: "stun:stun.iptel.org" },
+                      { urls: "stun:stun.rixtelecom.se" },
+                      { urls: "stun:stun.schlund.de" },
+                      { urls: "stun:stun.l.google.com:19302" },
+                      { urls: "stun:stun1.l.google.com:19302" },
+                      { urls: "stun:stun2.l.google.com:19302" },
+                      { urls: "stun:stun3.l.google.com:19302" },
+                      { urls: "stun:stun4.l.google.com:19302" },
+                      { urls: "stun:stunserver.org" },
+                      { urls: "stun:stun.softjoys.com" },
+                      { urls: "stun:stun.voiparound.com" },
+                      { urls: "stun:stun.voipbuster.com" },
+                      { urls: "stun:stun.voipstunt.com" },
+                      { urls: "stun:stun.voxgratia.org" },
+                      { urls: "stun:stun.xten.com" },
+                      {
+                        urls: "turn:numb.viagenie.ca",
+                        credential: "muazkh",
+                        username: "webrtc@live.com",
+                      },
+                      {
+                        urls: "turn:192.158.29.39:3478?transport=udp",
+                        credential: "JZEOEt2V3Qb0y27GRntt2u2PAYA=",
+                        username: "28224511:1379330808",
+                      },
+                      {
+                        urls: "turn:192.158.29.39:3478?transport=tcp",
+                        credential: "JZEOEt2V3Qb0y27GRntt2u2PAYA=",
+                        username: "28224511:1379330808",
+                      },
+                    ],
+                  },
+                })
+              );
             });
           }}
         />

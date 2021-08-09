@@ -12,6 +12,7 @@ type Props = {
   setUser: (username: string) => void;
   addVideoStream: (stream: MediaStream) => void;
   joinChat: () => void;
+  localSteam: MediaStream;
 };
 
 export default function Identification({ setUser, addVideoStream }: Props) {

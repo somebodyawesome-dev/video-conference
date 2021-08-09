@@ -20,7 +20,12 @@ export type Video = {
   stream: MediaStream;
   isfocused: boolean;
 };
-
+export type MediaDeviceInfo = {
+  hasVideo: boolean;
+  hasAudio: boolean;
+  audioAccess: boolean;
+  videoAccess: boolean;
+};
 const useVideoStream = () => {
   const [video, setvideo] = useState<Video>({
     stream: new MediaStream(),
@@ -49,11 +54,15 @@ export default function room({}: RoomProps) {
   const [showChat, setShowChat] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const messagesRef = useRef(messages);
-  const [localVideo, setLocalVideo] = useState<Video | null>(null);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [videos, setViedos] = useState<Video[]>([]);
   const videosRef = useRef(videos);
-
+  const [mediaDeviceInfo, setMediaDeviceInfo] = useState<MediaDeviceInfo>({
+    hasAudio: false,
+    hasVideo: false,
+    audioAccess: false,
+    videoAccess: false,
+  });
   //utility
   const addVideoStream = (peer: string, stream: MediaStream, username = "") => {
     setViedos([
@@ -111,6 +120,51 @@ export default function room({}: RoomProps) {
   };
   //
   useEffect(() => {
+    const getMediaDeviceInfo = async () => {
+      if (!navigator.mediaDevices) return;
+      let devices = null;
+      let hasVideo = false;
+      let hasAudio = false;
+      let audioAccess = false;
+      let videoAccess = false;
+      try {
+        devices = await navigator.mediaDevices.enumerateDevices();
+        for (const dev of devices) {
+          if (dev.kind === "audioinput") {
+            hasAudio = true;
+          }
+          if (dev.kind === "videoinput") {
+            hasVideo = true;
+          }
+        }
+        let videoStream: MediaStream | null = null;
+        let audioStream: MediaStream | null = null;
+        try {
+          videoStream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+          });
+          videoAccess = true;
+        } catch (err) {
+          videoAccess = false;
+        }
+        try {
+          audioStream = await navigator.mediaDevices.getUserMedia({
+            audio: true,
+          });
+          audioAccess = true;
+        } catch (err) {
+          audioAccess = false;
+        }
+        setMediaDeviceInfo({ hasAudio, hasVideo, audioAccess, videoAccess });
+        let tracks: MediaStreamTrack[] = [];
+        videoStream ? tracks.concat(videoStream.getVideoTracks()) : null;
+        audioStream ? tracks.concat(audioStream.getAudioTracks()) : null;
+        setLocalStream(new MediaStream(tracks));
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getMediaDeviceInfo();
     console.log("load event set");
     window.addEventListener(
       "load",
@@ -255,6 +309,7 @@ export default function room({}: RoomProps) {
           joinChat={() => {
             initPeer();
           }}
+          localSteam={localStream!}
         />
       ) : (
         <Fragment>

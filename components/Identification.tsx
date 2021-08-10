@@ -1,4 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import {
+  Dispatch,
+  MutableRefObject,
+  SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faVideo,
@@ -7,52 +14,170 @@ import {
   faPhone,
   faMicrophoneSlash,
 } from "@fortawesome/free-solid-svg-icons";
+import { MediaDevicesInfo } from "../pages/room/[roomId]";
 
 type Props = {
   setUser: (username: string) => void;
-  addVideoStream: (stream: MediaStream) => void;
   joinChat: () => void;
-  localSteam: MediaStream;
+  localStream: MutableRefObject<MediaStream | null>;
+  setLocalStream: Dispatch<SetStateAction<MediaStream | null>>;
+  mediaDeviceInfo: MediaDevicesInfo;
 };
 
-export default function Identification({ setUser, addVideoStream }: Props) {
+export default function Identification({
+  setUser,
+  mediaDeviceInfo,
+  localStream,
+  setLocalStream,
+  joinChat,
+}: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [username, setUsername] = useState("");
   const [muted, setMuted] = useState(true);
   const [video, setVideo] = useState(false);
 
   useEffect(() => {
-    if (!videoRef.current) return;
-    if (!muted || video) {
-      navigator.mediaDevices
-        .getUserMedia({
-          video: video,
-          audio: !muted,
-        })
-        .then((stream) => {
-          let video = videoRef.current!;
-          video.srcObject = stream;
-          video.muted = true;
-          if (video) {
-            video.play();
-          } else {
-            console.log(video);
-
-            stream.getTracks().forEach((track) => {
-              track.stop();
-            });
-          }
-        })
-        .catch((err) => {
-          console.error("error:", err);
-        });
-    } else {
-      videoRef.current!.srcObject = null;
-    }
+    // if (!videoRef.current) return;
+    // if (!muted || video) {
+    //   navigator.mediaDevices
+    //     .getUserMedia({
+    //       video: video,
+    //       audio: !muted,
+    //     })
+    //     .then((stream) => {
+    //       let video = videoRef.current!;
+    //       video.srcObject = stream;
+    //       video.muted = true;
+    //       if (video) {
+    //         video.play();
+    //       } else {
+    //         console.log(video);
+    //         stream.getTracks().forEach((track) => {
+    //           track.stop();
+    //         });
+    //       }
+    //     })
+    //     .catch((err) => {
+    //       console.error("error:", err);
+    //     });
+    // } else {
+    //   videoRef.current!.srcObject = null;
+    // }
   }, [muted, video]);
+  useEffect(() => {
+    if (!videoRef.current) return;
 
+    const addVideoTracks = async () => {
+      if (
+        !localStream.current ||
+        !mediaDeviceInfo.hasVideo ||
+        !mediaDeviceInfo.videoAccess
+      )
+        return;
+      try {
+        const tracks = (
+          await navigator.mediaDevices.getUserMedia({
+            video: true,
+          })
+        ).getVideoTracks();
+        for (const track of tracks) {
+          localStream.current.addTrack(track);
+        }
+
+        let video = videoRef.current!;
+        video.srcObject = localStream.current;
+        video.muted = true;
+        video.play();
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    const removeVideoTracks = async () => {
+      if (
+        !localStream.current ||
+        !mediaDeviceInfo.hasVideo ||
+        !mediaDeviceInfo.videoAccess
+      )
+        return;
+      try {
+        const tracks = localStream.current.getVideoTracks();
+        for (const track of tracks) {
+          track.stop();
+          localStream.current.removeTrack(track);
+        }
+        let video = videoRef.current!;
+        video.srcObject = localStream.current;
+        video.muted = true;
+        video.play();
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    if (video) {
+      addVideoTracks();
+    } else {
+      removeVideoTracks();
+    }
+  }, [video]);
+  useEffect(() => {
+    if (!videoRef.current) return;
+    const removeAudioTrack = async () => {
+      if (
+        !localStream.current ||
+        !mediaDeviceInfo.hasVideo ||
+        !mediaDeviceInfo.videoAccess
+      )
+        return;
+      try {
+        const tracks = localStream.current.getAudioTracks();
+        for (const track of tracks) {
+          track.stop();
+          localStream.current.removeTrack(track);
+        }
+        let video = videoRef.current!;
+        video.srcObject = localStream.current;
+        video.muted = true;
+        video.play();
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    const addAudioTrack = async () => {
+      if (
+        !localStream.current ||
+        !mediaDeviceInfo.hasVideo ||
+        !mediaDeviceInfo.videoAccess
+      )
+        return;
+      try {
+        const tracks = (
+          await navigator.mediaDevices.getUserMedia({
+            audio: true,
+          })
+        ).getAudioTracks();
+        for (const track of tracks) {
+          localStream.current.addTrack(track);
+        }
+
+        let video = videoRef.current!;
+        video.srcObject = localStream.current;
+        video.muted = true;
+        video.play();
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    if (muted) {
+      removeAudioTrack();
+    } else {
+      addAudioTrack();
+    }
+  }, [muted]);
   return (
     <div className="flex flex-col items-stretch z-251 text-xl absolute bg-gray-800 inset-0 m-0 p-0">
+      <canvas ref={canvasRef} className="w-0 h-0"></canvas>
       <div className="w-screen h-screen">
         <video
           ref={videoRef}
@@ -78,7 +203,8 @@ export default function Identification({ setUser, addVideoStream }: Props) {
                 onClick={() => {
                   if (username === "") return;
                   setUser(username);
-                  addVideoStream(videoRef.current!.srcObject as MediaStream);
+                  setLocalStream(localStream.current);
+                  joinChat();
                 }}
                 className="bg-blue-600 border-2 border-solid select-none border-blue-600 rounded box-border text-white inline-block text-base py-2 px-4 relative text-center w-80 cursor-pointer"
               >
@@ -88,34 +214,40 @@ export default function Identification({ setUser, addVideoStream }: Props) {
           </div>
           <div className="flex justify-center mt-6 mb-4 mx-0 w-full select-none">
             <div className="my-0 mx-3 items-center box-border flex relative z-250 justify-between bg-gray-900 rounded-md p-2 text-center w-48">
-              <div
-                className="text-white cursor-pointer text-center rounded-md ml-1 p-2 hover:bg-gray-500"
+              <button
+                disabled={
+                  !mediaDeviceInfo.hasAudio || !mediaDeviceInfo.audioAccess
+                }
+                className="text-white cursor-pointer text-center rounded-md ml-1 p-2 hover:bg-gray-500 disabled:opacity-50 disabled:text-red-500 disabled:hover:bg-transparent disabled:cursor-default"
                 onClick={() => {
                   setMuted(!muted);
                 }}
               >
                 <div className="rounded flex ">
-                  {!muted && (
+                  {muted ? (
+                    <FontAwesomeIcon icon={faMicrophoneSlash}></FontAwesomeIcon>
+                  ) : (
                     <FontAwesomeIcon icon={faMicrophone}></FontAwesomeIcon>
                   )}
-                  {muted && (
-                    <FontAwesomeIcon icon={faMicrophoneSlash}></FontAwesomeIcon>
-                  )}
                 </div>
-              </div>
-              <div
-                className="text-white cursor-pointer text-center rounded-md mx-5 p-2 hover:bg-gray-500"
+              </button>
+              <button
+                disabled={
+                  !mediaDeviceInfo.hasVideo || !mediaDeviceInfo.videoAccess
+                }
+                className="text-white cursor-pointer text-center rounded-md mx-5 p-2 hover:bg-gray-500 disabled:opacity-50 disabled:text-red-500 disabled:hover:bg-transparent disabled:cursor-default"
                 onClick={() => {
                   setVideo(!video);
                 }}
               >
                 <div className="rounded flex ">
-                  {video && <FontAwesomeIcon icon={faVideo}></FontAwesomeIcon>}
-                  {!video && (
+                  {video ? (
+                    <FontAwesomeIcon icon={faVideo}></FontAwesomeIcon>
+                  ) : (
                     <FontAwesomeIcon icon={faVideoSlash}></FontAwesomeIcon>
                   )}
                 </div>
-              </div>
+              </button>
               <div className="bg-red-600 text-center cursor-pointer rounded-md mr-1 p-2 hover:bg-red-400">
                 <div className="rounded flex ">
                   <FontAwesomeIcon

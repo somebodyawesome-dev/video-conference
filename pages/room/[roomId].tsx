@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, MutableRefObject, useEffect, useRef, useState } from "react";
 import Chat, { ChatMessage } from "../../components/Chat";
 import VideoChat from "../../components/VideoChat";
 import io, { Socket } from "socket.io-client";
@@ -20,7 +20,7 @@ export type Video = {
   stream: MediaStream;
   isfocused: boolean;
 };
-export type MediaDeviceInfo = {
+export type MediaDevicesInfo = {
   hasVideo: boolean;
   hasAudio: boolean;
   audioAccess: boolean;
@@ -55,9 +55,11 @@ export default function room({}: RoomProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const messagesRef = useRef(messages);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+  const localStreamRef = useRef(localStream);
   const [videos, setViedos] = useState<Video[]>([]);
   const videosRef = useRef(videos);
-  const [mediaDeviceInfo, setMediaDeviceInfo] = useState<MediaDeviceInfo>({
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [mediaDeviceInfo, setMediaDeviceInfo] = useState<MediaDevicesInfo>({
     hasAudio: false,
     hasVideo: false,
     audioAccess: false,
@@ -159,6 +161,7 @@ export default function room({}: RoomProps) {
         let tracks: MediaStreamTrack[] = [];
         videoStream ? tracks.concat(videoStream.getVideoTracks()) : null;
         audioStream ? tracks.concat(audioStream.getAudioTracks()) : null;
+        canvasRef.current!.captureStream();
         setLocalStream(new MediaStream(tracks));
       } catch (error) {
         console.log(error);
@@ -189,17 +192,18 @@ export default function room({}: RoomProps) {
       socket.on("user-connected", ({ id, username }) => {
         //TODO Implement case of user join a room
         //call new user
+
         if (!myPeer) return;
         const handleNewUserConnection = (
           userId: string,
-          stream: MediaStream
+          stream: MutableRefObject<MediaStream | null>
         ) => {
           //call the new peer user
 
-          const call = myPeer.call(userId, stream);
-
-          //handling the other user stream
+          const call = myPeer.call(userId, stream.current!);
+          console.log("new user connected");
           call.on("stream", (stream) => {
+            console.log(stream.id);
             addVideoStream(userId, stream, username);
             let conn = myPeer.connect(userId, { reliable: true });
             conn.on("open", () => {
@@ -212,9 +216,17 @@ export default function room({}: RoomProps) {
                 })
               );
             });
+            conn.on("error", (err) => {
+              console.log("err");
+            });
+          });
+          //handling the other user stream
+          call.on("error", (err) => {
+            console.log("error");
+            console.log(err);
           });
         };
-        handleNewUserConnection(id, localStream!);
+        handleNewUserConnection(id, localStreamRef);
       });
       socket.on("user-disconnected", (peerId) => {
         //TODO handling disconnection of user
@@ -238,8 +250,8 @@ export default function room({}: RoomProps) {
 
     myPeer.on("open", (id) => {
       setUserId(id);
-      setSocket(io("http://localhost:8080"));
 
+      //recieving new user name
       myPeer.on("connection", (cb) => {
         cb.on("open", () => {
           console.log(cb.peer);
@@ -259,18 +271,29 @@ export default function room({}: RoomProps) {
 
       //answer calls from other users
       myPeer.on("call", (call) => {
-        call.answer(localStream!);
+        call.answer(localStreamRef.current ?? undefined);
+
         call.on("stream", (stream) => {
+          console.log(call.peer);
           addVideoStream(call.peer, stream);
-          call.on("close", () => {
-            setViedos(
-              videosRef.current.filter((ele) => {
-                return call.peer !== ele.peer;
-              })
-            );
-          });
+        });
+        call.on("close", () => {
+          setViedos(
+            videosRef.current.filter((ele) => {
+              return call.peer !== ele.peer;
+            })
+          );
+        });
+        call.on("error", (err) => {
+          console.log(err);
         });
       });
+
+      myPeer.on("error", (err) => {
+        console.log(err);
+      });
+
+      setSocket(io("http://localhost:8080"));
     });
   }, [myPeer]);
 
@@ -293,23 +316,23 @@ export default function room({}: RoomProps) {
     //emit to other users
     socket.emit("user-sent-message", message);
   };
-  useEffect(() => {}, [localStream]);
+  useEffect(() => {
+    localStreamRef.current = localStream;
+  }, [localStream]);
   return (
     <div className="h-screen w-screen flex flex-col overflow-x-hidden sm:flex-row ">
+      <canvas ref={canvasRef} className="w-0 h-0"></canvas>
       {username === "" ? (
         <Identification
           setUser={(user: string) => {
             setUsername(user);
           }}
-          addVideoStream={(stream: MediaStream) => {
-            // addVideoStream(stream);
-            setLocalStream(stream);
-            initPeer();
-          }}
           joinChat={() => {
             initPeer();
           }}
-          localSteam={localStream!}
+          localStream={localStreamRef}
+          setLocalStream={setLocalStream}
+          mediaDeviceInfo={mediaDeviceInfo}
         />
       ) : (
         <Fragment>

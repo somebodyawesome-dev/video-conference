@@ -58,7 +58,6 @@ export default function room({}: RoomProps) {
   const localStreamRef = useRef(localStream);
   const [videos, setViedos] = useState<Video[]>([]);
   const videosRef = useRef(videos);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [mediaDeviceInfo, setMediaDeviceInfo] = useState<MediaDevicesInfo>({
     hasAudio: false,
     hasVideo: false,
@@ -161,7 +160,6 @@ export default function room({}: RoomProps) {
         let tracks: MediaStreamTrack[] = [];
         videoStream ? tracks.concat(videoStream.getVideoTracks()) : null;
         audioStream ? tracks.concat(audioStream.getAudioTracks()) : null;
-        canvasRef.current!.captureStream();
         setLocalStream(new MediaStream(tracks));
       } catch (error) {
         console.log(error);
@@ -321,7 +319,6 @@ export default function room({}: RoomProps) {
   }, [localStream]);
   return (
     <div className="h-screen w-screen flex flex-col overflow-x-hidden sm:flex-row ">
-      <canvas ref={canvasRef} className="w-0 h-0"></canvas>
       {username === "" ? (
         <Identification
           setUser={(user: string) => {

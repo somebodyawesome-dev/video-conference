@@ -44,7 +44,7 @@ export default function VideoChat({
     >
       {localStream ? (
         <div className="absolute left-0 top-1/2 w-56 h-1/2">
-          <VideoComp stream={localStream.stream} />
+          <VideoComp stream={localStream.stream} isMuted={true} />
         </div>
       ) : null}
       <div

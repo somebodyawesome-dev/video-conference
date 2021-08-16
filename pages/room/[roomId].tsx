@@ -62,7 +62,6 @@ export default function room({}: RoomProps) {
   const localStreamRef = useRef(localStream);
   const [videos, setViedos] = useState<Video[]>([]);
   const videosRef = useRef(videos);
-
   const [mediaDeviceInfo, setMediaDeviceInfo] = useState<MediaDevicesInfo>({
     hasAudio: false,
     hasVideo: false,
@@ -171,7 +170,6 @@ export default function room({}: RoomProps) {
         let tracks: MediaStreamTrack[] = [];
         videoStream ? tracks.concat(videoStream.getVideoTracks()) : null;
         audioStream ? tracks.concat(audioStream.getAudioTracks()) : null;
-
         setLocalStream(new MediaStream(tracks));
       } catch (error) {
         console.log(error);

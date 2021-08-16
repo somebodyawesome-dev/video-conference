@@ -19,6 +19,8 @@ export type Video = {
   username: string;
   stream: MediaStream;
   isfocused: boolean;
+  audio: boolean;
+  video: boolean;
 };
 export type MediaDevicesInfo = {
   hasVideo: boolean;
@@ -32,6 +34,8 @@ const useVideoStream = () => {
     isfocused: false,
     peer: "",
     username: "",
+    audio: false,
+    video: false,
   });
   const setStream = (stream: MediaStream) => {
     setvideo({ ...video, stream });
@@ -58,7 +62,7 @@ export default function room({}: RoomProps) {
   const localStreamRef = useRef(localStream);
   const [videos, setViedos] = useState<Video[]>([]);
   const videosRef = useRef(videos);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+
   const [mediaDeviceInfo, setMediaDeviceInfo] = useState<MediaDevicesInfo>({
     hasAudio: false,
     hasVideo: false,
@@ -66,10 +70,16 @@ export default function room({}: RoomProps) {
     videoAccess: false,
   });
   //utility
-  const addVideoStream = (peer: string, stream: MediaStream, username = "") => {
+  const addVideoStream = (
+    peer: string,
+    stream: MediaStream,
+    username = "",
+    audio = false,
+    video = false
+  ) => {
     setViedos([
       ...videosRef.current,
-      { isfocused: false, stream, peer, username },
+      { isfocused: false, stream, peer, username, audio, video },
     ]);
   };
   const initPeer = () => {
@@ -161,7 +171,7 @@ export default function room({}: RoomProps) {
         let tracks: MediaStreamTrack[] = [];
         videoStream ? tracks.concat(videoStream.getVideoTracks()) : null;
         audioStream ? tracks.concat(audioStream.getAudioTracks()) : null;
-        canvasRef.current!.captureStream();
+
         setLocalStream(new MediaStream(tracks));
       } catch (error) {
         console.log(error);
@@ -189,7 +199,7 @@ export default function room({}: RoomProps) {
   useEffect(() => {
     if (!socket) return;
     const initSocket = () => {
-      socket.on("user-connected", ({ id, username }) => {
+      socket.on("user-connected", ({ id, username, audio, video }) => {
         //TODO Implement case of user join a room
         //call new user
 
@@ -204,7 +214,7 @@ export default function room({}: RoomProps) {
           console.log("new user connected");
           call.on("stream", (stream) => {
             console.log(stream.id);
-            addVideoStream(userId, stream, username);
+            addVideoStream(userId, stream, username, audio, video);
             let conn = myPeer.connect(userId, { reliable: true });
             conn.on("open", () => {
               conn.send({ peerId: userId, peerName: username });
@@ -240,7 +250,7 @@ export default function room({}: RoomProps) {
       socket.on("user-sent-message", (message: ChatMessage) => {
         pushMessage(message);
       });
-      socket.emit("user-connected", roomId, userId, username);
+      socket.emit("user-connected", roomId, userId, username, false, false);
     };
     initSocket();
   }, [socket]);
@@ -321,7 +331,6 @@ export default function room({}: RoomProps) {
   }, [localStream]);
   return (
     <div className="h-screen w-screen flex flex-col overflow-x-hidden sm:flex-row ">
-      <canvas ref={canvasRef} className="w-0 h-0"></canvas>
       {username === "" ? (
         <Identification
           setUser={(user: string) => {
@@ -342,6 +351,8 @@ export default function room({}: RoomProps) {
               isfocused: false,
               peer: userId,
               username,
+              audio: false,
+              video: false,
             }}
             onToggleChat={() => {
               setShowChat(!showChat);

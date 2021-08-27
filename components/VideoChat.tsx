@@ -59,6 +59,8 @@ export default function VideoChat({
               key={`videoComp-${index}`}
             >
               <VideoComp stream={ele.stream} />
+
+              <div className="absolute inset-0 bg-white"></div>
             </div>
           );
         })}

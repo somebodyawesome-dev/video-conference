@@ -41,14 +41,14 @@ socketServer.listen(socketPort, () => {
   console.log(`socket server is live on ${socketPort}`);
 });
 
-const peerApp = express();
-const server = http.createServer(peerApp);
-const peerServer = ExpressPeerServer(server, {
-  path: "/peerjs",
-  port: 9000,
-});
-peerApp.use("/peerjs", peerServer);
+// const peerApp = express();
+// const server = http.createServer(peerApp);
+// const peerServer = ExpressPeerServer(server, {
+//   path: "/peerjs",
+//   port: 9000,
+// });
+// peerApp.use("/peerjs", peerServer);
 
-peerServer.listen(() => {
-  console.log(`we are live on 9000`);
-});
+// peerServer.listen(() => {
+//   console.log(`we are live on 9000`);
+// });

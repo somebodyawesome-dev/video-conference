@@ -38,34 +38,6 @@ export default function Identification({
   const [video, setVideo] = useState(false);
 
   useEffect(() => {
-    // if (!videoRef.current) return;
-    // if (!muted || video) {
-    //   navigator.mediaDevices
-    //     .getUserMedia({
-    //       video: video,
-    //       audio: !muted,
-    //     })
-    //     .then((stream) => {
-    //       let video = videoRef.current!;
-    //       video.srcObject = stream;
-    //       video.muted = true;
-    //       if (video) {
-    //         video.play();
-    //       } else {
-    //         console.log(video);
-    //         stream.getTracks().forEach((track) => {
-    //           track.stop();
-    //         });
-    //       }
-    //     })
-    //     .catch((err) => {
-    //       console.error("error:", err);
-    //     });
-    // } else {
-    //   videoRef.current!.srcObject = null;
-    // }
-  }, [muted, video]);
-  useEffect(() => {
     if (!videoRef.current) return;
 
     const addVideoTracks = async () => {
@@ -76,13 +48,10 @@ export default function Identification({
       )
         return;
       try {
-        const tracks = (
-          await navigator.mediaDevices.getUserMedia({
-            video: true,
-          })
-        ).getVideoTracks();
+        const tracks = localStream.current.getVideoTracks();
+
         for (const track of tracks) {
-          localStream.current.addTrack(track);
+          track.enabled = true;
         }
 
         let video = videoRef.current!;
@@ -103,8 +72,7 @@ export default function Identification({
       try {
         const tracks = localStream.current.getVideoTracks();
         for (const track of tracks) {
-          track.stop();
-          localStream.current.removeTrack(track);
+          track.enabled = false;
         }
         let video = videoRef.current!;
         video.srcObject = localStream.current;
@@ -132,8 +100,7 @@ export default function Identification({
       try {
         const tracks = localStream.current.getAudioTracks();
         for (const track of tracks) {
-          track.stop();
-          localStream.current.removeTrack(track);
+          track.enabled = false;
         }
         let video = videoRef.current!;
         video.srcObject = localStream.current;
@@ -151,13 +118,9 @@ export default function Identification({
       )
         return;
       try {
-        const tracks = (
-          await navigator.mediaDevices.getUserMedia({
-            audio: true,
-          })
-        ).getAudioTracks();
+        const tracks = localStream.current.getAudioTracks();
         for (const track of tracks) {
-          localStream.current.addTrack(track);
+          track.enabled = true;
         }
 
         let video = videoRef.current!;
@@ -223,7 +186,7 @@ export default function Identification({
                   setMuted(!muted);
                 }}
               >
-                <div className="rounded flex ">
+                <div className="rounded flex justify-center w-8 ">
                   {muted ? (
                     <FontAwesomeIcon icon={faMicrophoneSlash}></FontAwesomeIcon>
                   ) : (
@@ -240,7 +203,7 @@ export default function Identification({
                   setVideo(!video);
                 }}
               >
-                <div className="rounded flex ">
+                <div className="rounded flex justify-center w-8">
                   {video ? (
                     <FontAwesomeIcon icon={faVideo}></FontAwesomeIcon>
                   ) : (

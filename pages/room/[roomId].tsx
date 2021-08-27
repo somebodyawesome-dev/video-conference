@@ -28,25 +28,7 @@ export type MediaDevicesInfo = {
   audioAccess: boolean;
   videoAccess: boolean;
 };
-const useVideoStream = () => {
-  const [video, setvideo] = useState<Video>({
-    stream: new MediaStream(),
-    isfocused: false,
-    peer: "",
-    username: "",
-    audio: false,
-    video: false,
-  });
-  const setStream = (stream: MediaStream) => {
-    setvideo({ ...video, stream });
-  };
-  const setPeer = (peer: string) => {
-    setvideo({ ...video, peer });
-  };
-  const setFocus = (isfocused: boolean) => {
-    setvideo({ ...video, isfocused });
-  };
-};
+
 export default function room({}: RoomProps) {
   const router = useRouter();
   const roomId = router.query.roomId as string;
@@ -168,8 +150,16 @@ export default function room({}: RoomProps) {
         }
         setMediaDeviceInfo({ hasAudio, hasVideo, audioAccess, videoAccess });
         let tracks: MediaStreamTrack[] = [];
-        videoStream ? tracks.concat(videoStream.getVideoTracks()) : null;
-        audioStream ? tracks.concat(audioStream.getAudioTracks()) : null;
+
+        videoStream
+          ? (tracks = tracks.concat(videoStream.getVideoTracks()))
+          : null;
+        audioStream
+          ? (tracks = tracks.concat(audioStream.getAudioTracks()))
+          : null;
+        for (const track of tracks) {
+          track.enabled = false;
+        }
         setLocalStream(new MediaStream(tracks));
       } catch (error) {
         console.log(error);

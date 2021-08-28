@@ -60,7 +60,7 @@ export default function VideoChat({
             >
               <VideoComp stream={ele.stream} />
 
-              <div className="absolute inset-0 bg-white"></div>
+              {/* <div className="absolute inset-0 bg-white"></div> */}
             </div>
           );
         })}

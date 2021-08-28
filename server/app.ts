@@ -34,6 +34,12 @@ io.on("connection", (socket) => {
     socket.on("disconnect", () => {
       socket.broadcast.to(roomId).emit("user-disconnected", id);
     });
+    socket.on("user-toggle-video", (camera: boolean) => {
+      socket.broadcast.to(roomId).emit("user-toggle-video", id, camera);
+    });
+    socket.on("user-toggle-audio", (audio: boolean) => {
+      socket.broadcast.to(roomId).emit("user-toggle-audio", id, audio);
+    });
   });
 });
 

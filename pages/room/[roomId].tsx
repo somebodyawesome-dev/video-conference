@@ -42,8 +42,10 @@ export default function room({}: RoomProps) {
   const messagesRef = useRef(messages);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const localStreamRef = useRef(localStream);
-  const [videos, setViedos] = useState<Video[]>([]);
+  const [videos, setVideos] = useState<Video[]>([]);
   const videosRef = useRef(videos);
+  const [toggleCamera, setToggleCamera] = useState(false);
+  const [toggleMute, setToggleMute] = useState(false);
   const [mediaDeviceInfo, setMediaDeviceInfo] = useState<MediaDevicesInfo>({
     hasAudio: false,
     hasVideo: false,
@@ -58,7 +60,7 @@ export default function room({}: RoomProps) {
     audio = false,
     video = false
   ) => {
-    setViedos([
+    setVideos([
       ...videosRef.current,
       { isfocused: false, stream, peer, username, audio, video },
     ]);
@@ -188,7 +190,6 @@ export default function room({}: RoomProps) {
     if (!socket) return;
     const initSocket = () => {
       socket.on("user-connected", ({ id, username, audio, video }) => {
-        //TODO Implement case of user join a room
         //call new user
 
         if (!myPeer) return;
@@ -208,7 +209,7 @@ export default function room({}: RoomProps) {
               conn.send({ peerId: userId, peerName: username });
             });
             call.on("close", () => {
-              setViedos(
+              setVideos(
                 videosRef.current.filter((ele) => {
                   return ele.stream !== stream;
                 })
@@ -226,9 +227,23 @@ export default function room({}: RoomProps) {
         };
         handleNewUserConnection(id, localStreamRef);
       });
+      socket.on("user-toggle-video", (id: string, video: boolean) => {
+        setVideos(
+          videosRef.current.map((ele) => {
+            return ele.peer !== id ? ele : { ...ele, video };
+          })
+        );
+      });
+      socket.on("user-toggle-audio", (id: string, audio: boolean) => {
+        setVideos(
+          videosRef.current.map((ele) => {
+            return ele.peer !== id ? ele : { ...ele, audio };
+          })
+        );
+      });
       socket.on("user-disconnected", (peerId) => {
         //TODO handling disconnection of user
-        setViedos(
+        setVideos(
           videosRef.current.filter((ele) => {
             return ele.peer !== peerId;
           })
@@ -256,7 +271,7 @@ export default function room({}: RoomProps) {
           cb.on("data", (data) => {
             console.log(`${data.peerName} `);
             //set name  calling user
-            setViedos(
+            setVideos(
               videosRef.current.map((ele) => {
                 return ele.peer !== cb.peer
                   ? ele
@@ -276,7 +291,7 @@ export default function room({}: RoomProps) {
           addVideoStream(call.peer, stream);
         });
         call.on("close", () => {
-          setViedos(
+          setVideos(
             videosRef.current.filter((ele) => {
               return call.peer !== ele.peer;
             })
@@ -302,6 +317,16 @@ export default function room({}: RoomProps) {
 
   useEffect(() => {
     videosRef.current = videos;
+    for (const vid of videos) {
+      const vidTracks = vid.stream.getVideoTracks();
+      for (const track of vidTracks) {
+        track.enabled = vid.video;
+      }
+      const audTracks = vid.stream.getAudioTracks();
+      for (const track of audTracks) {
+        track.enabled = vid.audio;
+      }
+    }
     resizeVideoGrid();
   }, [videos]);
   //handling new message
@@ -317,6 +342,24 @@ export default function room({}: RoomProps) {
   useEffect(() => {
     localStreamRef.current = localStream;
   }, [localStream]);
+  useEffect(() => {
+    if (!localStreamRef.current) return;
+    const tracks = localStreamRef.current.getVideoTracks();
+    for (const track of tracks) {
+      track.enabled = toggleCamera;
+    }
+    if (!socket) return;
+    socket.emit("user-toggle-video", toggleCamera);
+  }, [toggleCamera]);
+  useEffect(() => {
+    if (!localStreamRef.current) return;
+    const tracks = localStreamRef.current.getAudioTracks();
+    for (const track of tracks) {
+      track.enabled = toggleMute;
+    }
+    if (!socket) return;
+    socket.emit("user-toggle-audio", toggleMute);
+  }, [toggleMute]);
   return (
     <div className="h-screen w-screen flex flex-col overflow-x-hidden sm:flex-row ">
       {username === "" ? (
@@ -330,6 +373,8 @@ export default function room({}: RoomProps) {
           localStream={localStreamRef}
           setLocalStream={setLocalStream}
           mediaDeviceInfo={mediaDeviceInfo}
+          setToggleCamera={setToggleCamera}
+          setToggleMute={setToggleMute}
         />
       ) : (
         <Fragment>
@@ -339,8 +384,8 @@ export default function room({}: RoomProps) {
               isfocused: false,
               peer: userId,
               username,
-              audio: false,
-              video: false,
+              audio: toggleMute,
+              video: toggleCamera,
             }}
             onToggleChat={() => {
               setShowChat(!showChat);

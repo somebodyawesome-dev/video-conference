@@ -22,6 +22,8 @@ type Props = {
   localStream: MutableRefObject<MediaStream | null>;
   setLocalStream: Dispatch<SetStateAction<MediaStream | null>>;
   mediaDeviceInfo: MediaDevicesInfo;
+  setToggleMute: (mute: boolean) => void;
+  setToggleCamera: (camera: boolean) => void;
 };
 
 export default function Identification({
@@ -30,6 +32,8 @@ export default function Identification({
   localStream,
   setLocalStream,
   joinChat,
+  setToggleMute,
+  setToggleCamera,
 }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -48,11 +52,7 @@ export default function Identification({
       )
         return;
       try {
-        const tracks = localStream.current.getVideoTracks();
-
-        for (const track of tracks) {
-          track.enabled = true;
-        }
+        setToggleCamera(true);
 
         let video = videoRef.current!;
         video.srcObject = localStream.current;
@@ -70,12 +70,9 @@ export default function Identification({
       )
         return;
       try {
-        const tracks = localStream.current.getVideoTracks();
-        for (const track of tracks) {
-          track.enabled = false;
-        }
+        setToggleCamera(false);
         let video = videoRef.current!;
-        video.srcObject = localStream.current;
+        video.srcObject = null;
         video.muted = true;
         video.play();
       } catch (error) {
@@ -98,14 +95,7 @@ export default function Identification({
       )
         return;
       try {
-        const tracks = localStream.current.getAudioTracks();
-        for (const track of tracks) {
-          track.enabled = false;
-        }
-        let video = videoRef.current!;
-        video.srcObject = localStream.current;
-        video.muted = true;
-        video.play();
+        setToggleMute(false);
       } catch (error) {
         console.log(error);
       }
@@ -118,15 +108,7 @@ export default function Identification({
       )
         return;
       try {
-        const tracks = localStream.current.getAudioTracks();
-        for (const track of tracks) {
-          track.enabled = true;
-        }
-
-        let video = videoRef.current!;
-        video.srcObject = localStream.current;
-        video.muted = true;
-        video.play();
+        setToggleMute(true);
       } catch (error) {
         console.log(error);
       }

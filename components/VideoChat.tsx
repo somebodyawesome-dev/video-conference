@@ -74,6 +74,17 @@ export default function VideoChat({
       >
         <FontAwesomeIcon className="" icon={faCommentAlt}></FontAwesomeIcon>
       </button>
+      <div className="absolute flex bg-gray-900 rounded bottom-[15%] ">
+        <button className="m-2 py-2 px-3  text-white hover:bg-gray-400 rounded">
+          <FontAwesomeIcon className="" icon={faCommentAlt}></FontAwesomeIcon>
+        </button>
+        <button className="m-2 py-2 px-3  text-white hover:bg-gray-400 rounded">
+          <FontAwesomeIcon className="" icon={faCommentAlt}></FontAwesomeIcon>
+        </button>
+        <button className="m-2 py-2 px-3  text-white hover:bg-gray-400 rounded">
+          <FontAwesomeIcon className="" icon={faCommentAlt}></FontAwesomeIcon>
+        </button>
+      </div>
     </div>
   );
 }

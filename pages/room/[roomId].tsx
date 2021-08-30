@@ -206,7 +206,12 @@ export default function room({}: RoomProps) {
             addVideoStream(userId, stream, username, audio, video);
             let conn = myPeer.connect(userId, { reliable: true });
             conn.on("open", () => {
-              conn.send({ peerId: userId, peerName: username });
+              conn.send({
+                peerId: userId,
+                peerName: username,
+                mute: toggleMute,
+                video: toggleCamera,
+              });
             });
             call.on("close", () => {
               setVideos(
@@ -253,7 +258,14 @@ export default function room({}: RoomProps) {
       socket.on("user-sent-message", (message: ChatMessage) => {
         pushMessage(message);
       });
-      socket.emit("user-connected", roomId, userId, username, false, false);
+      socket.emit(
+        "user-connected",
+        roomId,
+        userId,
+        username,
+        toggleMute,
+        toggleCamera
+      );
     };
     initSocket();
   }, [socket]);
@@ -275,7 +287,12 @@ export default function room({}: RoomProps) {
               videosRef.current.map((ele) => {
                 return ele.peer !== cb.peer
                   ? ele
-                  : { ...ele, username: data.peerName };
+                  : {
+                      ...ele,
+                      username: data.peerName,
+                      mute: data.mute,
+                      video: data.video,
+                    };
               })
             );
           });
@@ -391,6 +408,11 @@ export default function room({}: RoomProps) {
               setShowChat(!showChat);
             }}
             videos={videos}
+            setToggleCamera={setToggleCamera}
+            setToggleMute={setToggleMute}
+            toggleMute={toggleMute}
+            toggleCamera={toggleCamera}
+            mediaDeviceInfo={mediaDeviceInfo}
           />
           <Chat
             toggleChat={showChat}

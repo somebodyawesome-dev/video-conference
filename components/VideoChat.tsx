@@ -1,8 +1,15 @@
 import { Fragment, MutableRefObject, useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import { faCommentAlt } from "@fortawesome/free-solid-svg-icons";
-import { Video } from "../pages/room/[roomId]";
+import {
+  faCommentAlt,
+  faMicrophone,
+  faMicrophoneSlash,
+  faPhone,
+  faVideo,
+  faVideoSlash,
+} from "@fortawesome/free-solid-svg-icons";
+import { MediaDevicesInfo, Video } from "../pages/room/[roomId]";
 
 import VideoComp from "./Video";
 
@@ -10,11 +17,21 @@ type VideoChatProps = {
   onToggleChat: Function;
   videos: Video[];
   localStream: Video | null;
+  setToggleMute: (mute: boolean) => void;
+  setToggleCamera: (camera: boolean) => void;
+  toggleMute: boolean;
+  toggleCamera: boolean;
+  mediaDeviceInfo: MediaDevicesInfo;
 };
 export default function VideoChat({
   onToggleChat,
   videos,
   localStream,
+  setToggleMute,
+  setToggleCamera,
+  toggleCamera,
+  toggleMute,
+  mediaDeviceInfo,
 }: VideoChatProps) {
   const [toggled, setToggled] = useState(false);
   const [videosS, setVideo] = useState();
@@ -43,7 +60,7 @@ export default function VideoChat({
       }}
     >
       {localStream ? (
-        <div className="absolute left-0 top-1/2 w-56 h-1/2">
+        <div className="absolute left-4 bottom-16 w-40 h-[180px] rounded">
           <VideoComp stream={localStream.stream} isMuted={true} />
         </div>
       ) : null}
@@ -58,9 +75,11 @@ export default function VideoChat({
               className="camera relative overflow-hidden align-middle self-center rounded-lg inline-block"
               key={`videoComp-${index}`}
             >
-              <VideoComp stream={ele.stream} />
-
-              {/* <div className="absolute inset-0 bg-white"></div> */}
+              {ele.video ? (
+                <VideoComp stream={ele.stream} />
+              ) : (
+                <div className="absolute inset-0  bg-white"></div>
+              )}
             </div>
           );
         })}
@@ -75,14 +94,32 @@ export default function VideoChat({
         <FontAwesomeIcon className="" icon={faCommentAlt}></FontAwesomeIcon>
       </button>
       <div className="absolute flex bg-gray-900 rounded bottom-[15%] ">
-        <button className="m-2 py-2 px-3  text-white hover:bg-gray-400 rounded">
-          <FontAwesomeIcon className="" icon={faCommentAlt}></FontAwesomeIcon>
+        <button
+          disabled={!mediaDeviceInfo.hasAudio || !mediaDeviceInfo.audioAccess}
+          className="m-2 py-2 px-3  text-white hover:bg-gray-400 rounded disabled:text-red-500 disabled:text-opacity-50 disabled:hover:bg-transparent disabled:cursor-default"
+          onClick={() => {
+            setToggleMute(!toggleMute);
+          }}
+        >
+          <FontAwesomeIcon
+            className=""
+            icon={toggleMute ? faMicrophone : faMicrophoneSlash}
+          ></FontAwesomeIcon>
         </button>
-        <button className="m-2 py-2 px-3  text-white hover:bg-gray-400 rounded">
-          <FontAwesomeIcon className="" icon={faCommentAlt}></FontAwesomeIcon>
+        <button
+          disabled={!mediaDeviceInfo.hasVideo || !mediaDeviceInfo.videoAccess}
+          className="m-2 py-2 px-3  text-white hover:bg-gray-400 rounded disabled:text-red-500 disabled:text-opacity-50 disabled:hover:bg-transparent disabled:cursor-default"
+          onClick={() => {
+            setToggleCamera(!toggleCamera);
+          }}
+        >
+          <FontAwesomeIcon
+            className=""
+            icon={toggleCamera ? faVideo : faVideoSlash}
+          ></FontAwesomeIcon>
         </button>
-        <button className="m-2 py-2 px-3  text-white hover:bg-gray-400 rounded">
-          <FontAwesomeIcon className="" icon={faCommentAlt}></FontAwesomeIcon>
+        <button className="m-2 py-2 px-3  text-white bg-red-600 hover:bg-red-400 rounded">
+          <FontAwesomeIcon className="" icon={faPhone}></FontAwesomeIcon>
         </button>
       </div>
     </div>

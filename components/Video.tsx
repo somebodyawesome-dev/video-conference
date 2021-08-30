@@ -14,7 +14,7 @@ export default function VideoComp({ stream, isMuted }: VideoProps) {
 
   return (
     <video
-      className="absolute w-full h-full rounded-lg top-0 left-0"
+      className="absolute w-full h-full rounded-lg inset-0 "
       ref={videoRef}
       muted={isMuted}
       autoPlay

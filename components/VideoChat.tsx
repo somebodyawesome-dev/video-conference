@@ -59,11 +59,13 @@ export default function VideoChat({
         alignItems: "center",
       }}
     >
-      {localStream ? (
-        <div className="absolute left-4 bottom-16 w-40 h-[180px] rounded">
+      <div className="absolute left-4 bottom-16 w-40 h-[180px] rounded">
+        {localStream ? (
           <VideoComp stream={localStream.stream} isMuted={true} />
-        </div>
-      ) : null}
+        ) : (
+          <div className="absolute inset-0  bg-white"></div>
+        )}
+      </div>
       <div
         id="camera-container"
         className="camera-container w-full h-4/5  transition-all duration-1000 border-2 flex flex-wrap justify-center content-center align-middle items-center "
@@ -78,7 +80,13 @@ export default function VideoChat({
               {ele.video ? (
                 <VideoComp stream={ele.stream} />
               ) : (
-                <div className="absolute inset-0  bg-white"></div>
+                <div className="absolute inset-0 bg-black flex justify-center items-center">
+                  <div className="bg-yellow-300 w-1/2 h-1/2 p-5 rounded-[50%] flex justify-center items-center ">
+                    <h1 className="text-4xl font-bold text-white">
+                      {ele.username[0]}
+                    </h1>
+                  </div>
+                </div>
               )}
             </div>
           );

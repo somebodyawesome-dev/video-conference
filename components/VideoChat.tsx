@@ -83,7 +83,7 @@ export default function VideoChat({
                 <div className="absolute inset-0 bg-black flex justify-center items-center">
                   <div className="bg-yellow-300 w-1/2 h-1/2 p-5 rounded-[50%] flex justify-center items-center ">
                     <h1 className="text-4xl font-bold text-white">
-                      {ele.username[0]}
+                      {ele.username[0]?.toUpperCase()}
                     </h1>
                   </div>
                 </div>

@@ -21,7 +21,7 @@ io.on("connection", (socket) => {
   //user socket events goes here
   console.log("some dude joined");
   socket.on("user-connected", (roomId, id, username, audio, video) => {
-    console.log(roomId, id);
+    console.log(roomId, id, username);
     socket.join(roomId);
     //TODO implement sending the stat of stream
     socket.broadcast

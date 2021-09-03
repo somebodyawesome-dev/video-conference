@@ -181,7 +181,7 @@ export default function room({}: RoomProps) {
   useEffect(() => {
     if (!socket) return;
     const initSocket = () => {
-      socket.on("user-connected", ({ id, username, audio, video }) => {
+      socket.on("user-connected", ({ id, user, audio, video }) => {
         //call new user
 
         if (!myPeer) return;
@@ -195,7 +195,7 @@ export default function room({}: RoomProps) {
           console.log("new user connected");
           call.on("stream", (stream) => {
             console.log(stream.id);
-            addVideoStream(userId, stream, username, audio, video);
+            addVideoStream(userId, stream, user, audio, video);
             let conn = myPeer.connect(userId, { reliable: true });
             conn.on("open", () => {
               conn.send({
@@ -273,7 +273,7 @@ export default function room({}: RoomProps) {
         cb.on("open", () => {
           console.log(cb.peer);
           cb.on("data", (data) => {
-            console.log(`${data.peerName} `);
+            console.log(`${"user connected : " + data.peerName} `);
             //set name  calling user
             setVideos(
               videosRef.current.map((ele) => {
@@ -293,7 +293,7 @@ export default function room({}: RoomProps) {
 
       //answer calls from other users
       myPeer.on("call", (call) => {
-        call.answer(localStreamRef.current ?? undefined);
+        call.answer(localStreamRef.current!);
 
         call.on("stream", (stream) => {
           console.log(call.peer);

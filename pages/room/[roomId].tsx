@@ -3,8 +3,6 @@ import { Fragment, MutableRefObject, useEffect, useRef, useState } from "react";
 import Chat, { ChatMessage } from "../../components/Chat";
 import VideoChat from "../../components/VideoChat";
 import io, { Socket } from "socket.io-client";
-// import { MyPeer } from "../../types/MyPeer";
-
 import Peer from "peerjs";
 import Identification from "../../components/Identification";
 import { resizeVideoGrid } from "../../utils/VideoGridHandler";
@@ -178,13 +176,7 @@ export default function room({}: RoomProps) {
       false
     );
   }, []);
-  //getting room id
-  useEffect(() => {
-    // if (!router.isReady) return;
-    // import("peerjs").then(({ default: Peer }) => {
-    //   setPeer(new Peer());
-    // });
-  }, [router.isReady]);
+
   //connect to socket server and init events
   useEffect(() => {
     if (!socket) return;
@@ -406,6 +398,7 @@ export default function room({}: RoomProps) {
             }}
             onToggleChat={() => {
               setShowChat(!showChat);
+              resizeVideoGrid();
             }}
             videos={videos}
             setToggleCamera={setToggleCamera}

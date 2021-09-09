@@ -38,24 +38,24 @@ export default function VideoChat({
   const [toggled, setToggled] = useState(false);
   const [videosS, setVideo] = useState();
   const containerRef = useRef<HTMLDivElement>(null);
-  useMutationObservable(containerRef.current, async () => {
-    await delay(800);
-    resizeVideoGrid();
-  });
-  function useMutationObservable(targetEl: HTMLElement | null, cb: () => void) {
-    const [observer, setObserver] = useState<MutationObserver>(
-      new MutationObserver(cb)
-    );
-    useEffect(() => {
-      if (!observer || !targetEl) return;
-      observer.observe(targetEl, { attributes: true });
-      return () => {
-        if (observer) {
-          observer.disconnect();
-        }
-      };
-    }, [observer, targetEl]);
-  }
+  // useMutationObservable(containerRef.current, async () => {
+  //   await delay(800);
+  //   resizeVideoGrid();
+  // });
+  // function useMutationObservable(targetEl: HTMLElement | null, cb: () => void) {
+  //   const [observer, setObserver] = useState<MutationObserver>(
+  //     new MutationObserver(cb)
+  //   );
+  //   useEffect(() => {
+  //     if (!observer || !targetEl) return;
+  //     observer.observe(targetEl, { attributes: true });
+  //     return () => {
+  //       if (observer) {
+  //         observer.disconnect();
+  //       }
+  //     };
+  //   }, [observer, targetEl]);
+  // }
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -79,6 +79,9 @@ export default function VideoChat({
         alignItems: "center",
       }}
       ref={containerRef}
+      onTransitionEnd={() => {
+        resizeVideoGrid();
+      }}
     >
       <div className="absolute left-4 bottom-16 w-40 h-[180px] rounded">
         {localStream ? (

@@ -20,13 +20,13 @@ const io = new Server(socketServer, options);
 io.on("connection", (socket) => {
   //user socket events goes here
   console.log("some dude joined");
-  socket.on("user-connected", (roomId, id, username, audio, video) => {
-    console.log(roomId, id, username);
+  socket.on("user-connected", (roomId, id, user, audio, video) => {
+    console.log(roomId, id, user);
     socket.join(roomId);
     //TODO implement sending the stat of stream
     socket.broadcast
       .to(roomId)
-      .emit("user-connected", { id, username, audio, video });
+      .emit("user-connected", { id, user, audio, video });
     socket.on("user-sent-message", (message: ChatMessage) => {
       message.isLocal = false;
       socket.broadcast.to(roomId).emit("user-sent-message", message);

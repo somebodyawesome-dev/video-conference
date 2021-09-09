@@ -369,6 +369,9 @@ export default function room({}: RoomProps) {
     if (!socket) return;
     socket.emit("user-toggle-audio", toggleMute);
   }, [toggleMute]);
+  useEffect(() => {
+    resizeVideoGrid();
+  }, [showChat]);
   return (
     <div className="h-screen w-screen flex flex-col overflow-x-hidden sm:flex-row ">
       {username === "" ? (

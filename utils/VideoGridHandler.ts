@@ -57,4 +57,9 @@ function setWidth(width: number, margin: number) {
     htmlElem.style.height = width * 0.75 + "px";
   }
 }
+
+// const resizeObserver = new MutationObserver(function (mutations: any) {
+//   console.log("size changed!");
+// });
+
 export { resizeVideoGrid };

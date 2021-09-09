@@ -12,6 +12,7 @@ import {
 import { MediaDevicesInfo, Video } from "../pages/room/[roomId]";
 
 import VideoComp from "./Video";
+import { resizeVideoGrid } from "../utils/VideoGridHandler";
 
 type VideoChatProps = {
   onToggleChat: Function;
@@ -23,6 +24,7 @@ type VideoChatProps = {
   toggleCamera: boolean;
   mediaDeviceInfo: MediaDevicesInfo;
 };
+const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 export default function VideoChat({
   onToggleChat,
   videos,
@@ -35,11 +37,29 @@ export default function VideoChat({
 }: VideoChatProps) {
   const [toggled, setToggled] = useState(false);
   const [videosS, setVideo] = useState();
+  const containerRef = useRef<HTMLDivElement>(null);
+  useMutationObservable(containerRef.current, async () => {
+    await delay(800);
+    resizeVideoGrid();
+  });
+  function useMutationObservable(targetEl: HTMLElement | null, cb: () => void) {
+    const [observer, setObserver] = useState<MutationObserver>(
+      new MutationObserver(cb)
+    );
+    useEffect(() => {
+      if (!observer || !targetEl) return;
+      observer.observe(targetEl, { attributes: true });
+      return () => {
+        if (observer) {
+          observer.disconnect();
+        }
+      };
+    }, [observer, targetEl]);
+  }
+
   useEffect(() => {
-    videos.map((ele, index) => {
-      // console.log(index);
-    });
-  }, [videos]);
+    if (!containerRef.current) return;
+  }, [containerRef.current]);
   const videoContainer =
     "relative bg-gray-700 box-border transition-all duration-700 ";
   const fullVideo = "h-full w-full ";
@@ -58,6 +78,7 @@ export default function VideoChat({
         justifyContent: "center",
         alignItems: "center",
       }}
+      ref={containerRef}
     >
       <div className="absolute left-4 bottom-16 w-40 h-[180px] rounded">
         {localStream ? (

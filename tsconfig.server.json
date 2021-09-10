@@ -3,7 +3,8 @@
   "compilerOptions": {
     "module": "commonjs",
     "outDir": "dist",
-    "noEmit": false
+    "noEmit": false,
+    "typeRoots": ["./typings", "./node_modules/@types/"]
   },
   "include": ["server"]
 }

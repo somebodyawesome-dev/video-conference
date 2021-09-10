@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
+import { faPaperPlane, faFileUpload } from "@fortawesome/free-solid-svg-icons";
 import styles from "../styles/Chat.module.css";
 import { useEffect } from "react";
 import { UserInfo } from "../pages/room/[roomId]";
@@ -75,6 +75,14 @@ export default function Chat({
             }
           }}
         />
+        <div
+          className="rounded-lg mx-1 transition duration-500 box-border p-2 text-white  hover:bg-white hover:text-gray-700 hover:cursor-pointer"
+          onClick={() => {
+            sendMessage();
+          }}
+        >
+          <FontAwesomeIcon className="" icon={faFileUpload}></FontAwesomeIcon>
+        </div>
         <div
           className="rounded-lg mx-1 transition duration-500 box-border p-2 text-white  hover:bg-white hover:text-gray-700 hover:cursor-pointer"
           onClick={() => {

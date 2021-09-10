@@ -3,9 +3,12 @@ import http from "http";
 import { Server, Socket } from "socket.io";
 import { ChatMessage } from "../components/Chat";
 import { ExpressPeerServer } from "peer";
+// import siofu from "socketio-file-upload";
+const siofu = require("socketio-file-upload");
 // socket server set up
 const socketPort = 8080;
 const socketApp = express();
+socketApp.use(siofu);
 const socketServer = http.createServer(socketApp);
 
 const options = {
@@ -18,6 +21,10 @@ const options = {
 const io = new Server(socketServer, options);
 
 io.on("connection", (socket) => {
+  const uploader: any = new siofu();
+  uploader.dir = "/uploads";
+  uploader.listen(socket);
+
   //user socket events goes here
   console.log("some dude joined");
   socket.on("user-connected", (roomId, id, user, audio, video) => {

@@ -6,7 +6,6 @@ import io, { Socket } from "socket.io-client";
 import Peer from "peerjs";
 import Identification from "../../components/Identification";
 import { resizeVideoGrid } from "../../utils/VideoGridHandler";
-
 type RoomProps = {};
 export type UserInfo = {
   id: string;
@@ -180,6 +179,7 @@ export default function room({}: RoomProps) {
   //connect to socket server and init events
   useEffect(() => {
     if (!socket) return;
+
     const initSocket = () => {
       socket.on("user-connected", ({ id, user, audio, video }) => {
         //call new user
@@ -418,6 +418,7 @@ export default function room({}: RoomProps) {
               emitMessage(message);
             }}
             userInfo={{ id: userId, username }}
+            socket={socket}
           />
         </Fragment>
       )}

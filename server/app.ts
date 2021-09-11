@@ -22,8 +22,9 @@ const io = new Server(socketServer, options);
 
 io.on("connection", (socket) => {
   const uploader: any = new siofu();
-  uploader.dir = "/uploads";
+  uploader.dir = "./uploads";
   uploader.listen(socket);
+  console.log(uploader);
 
   //user socket events goes here
   console.log("some dude joined");

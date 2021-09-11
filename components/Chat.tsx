@@ -1,14 +1,17 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperPlane, faFileUpload } from "@fortawesome/free-solid-svg-icons";
 import styles from "../styles/Chat.module.css";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { UserInfo } from "../pages/room/[roomId]";
+import SocketIOFileUpload from "socketio-file-upload/client";
+import { Socket } from "socket.io-client";
 
 type ChatProps = {
   toggleChat: boolean;
   messages: ChatMessage[];
   onPushMessage: (message: ChatMessage) => void;
   userInfo: UserInfo;
+  socket: Socket | null;
 };
 export type ChatMessage = {
   name: string;
@@ -21,7 +24,10 @@ export default function Chat({
   onPushMessage,
   messages,
   userInfo,
+  socket,
 }: ChatProps) {
+  const [siofu, setSiofu] = useState<any>(null);
+  const uploadRef = useRef<HTMLInputElement>(null);
   const sendMessage = () => {
     const messageInput = document.getElementById(
       "messageInput"
@@ -44,12 +50,17 @@ export default function Chat({
     };
     scrollToBottom();
   }, [messages]);
+  useEffect(() => {
+    if (!socket) return;
+    setSiofu(new SocketIOFileUpload(socket));
+  }, [socket]);
   const chatStyle =
     "fixed flex flex-col justify-between box-border bg-gray-600 transition-all duration-700 bottom-0 h-1/4 w-full sm:h-full sm:w-2/5  md:w-2/6 lg:w-80 ";
   const displayChat = "right-0 ";
   const hideChat = "-right-full ";
   return (
     <div className={chatStyle + (toggleChat ? displayChat : hideChat)}>
+      <input type="file" name="" id="wiow" className="hidden" ref={uploadRef} />
       {/* {message container} */}
       <div
         className={`${styles.scroll} m-1 flex-grow flex flex-col overflow-y-auto ring-2 ring-white ring-offset-0 mb-2 rounded-lg `}
@@ -78,7 +89,8 @@ export default function Chat({
         <div
           className="rounded-lg mx-1 transition duration-500 box-border p-2 text-white  hover:bg-white hover:text-gray-700 hover:cursor-pointer"
           onClick={() => {
-            sendMessage();
+            if (!siofu) return;
+            siofu.prompt();
           }}
         >
           <FontAwesomeIcon className="" icon={faFileUpload}></FontAwesomeIcon>

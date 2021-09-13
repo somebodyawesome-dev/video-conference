@@ -27,6 +27,7 @@ export default function Chat({
   socket,
 }: ChatProps) {
   const [siofu, setSiofu] = useState<any>(null);
+  const siofuRef = useRef(siofu);
   const uploadRef = useRef<HTMLInputElement>(null);
   const sendMessage = () => {
     const messageInput = document.getElementById(
@@ -54,6 +55,18 @@ export default function Chat({
     if (!socket) return;
     setSiofu(new SocketIOFileUpload(socket));
   }, [socket]);
+  useEffect(() => {
+    if (!siofu) return;
+
+    siofu.maxFileSize = 1024 * 5;
+    siofu.addEventListener("error", function (data: any) {
+      if (data.code === 1) {
+        console.log(data);
+
+        alert("Don't upload such a big file");
+      }
+    });
+  }, [siofu]);
   const chatStyle =
     "fixed flex flex-col justify-between box-border bg-gray-600 transition-all duration-700 bottom-0 h-1/4 w-full sm:h-full sm:w-2/5  md:w-2/6 lg:w-80 ";
   const displayChat = "right-0 ";

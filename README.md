@@ -1,6 +1,6 @@
 ## Introduction
 
-Video conferencing software enables online communication for audio meetings, video meetings, and seminars, with built-in features such as chat. These applications are implemented to enable long-distance or international communication, enhance collaboration, and reduce travel costs. Employees at every level within an organization can use video conferencing tools to host or attend virtual meetings with fellow employees, company partners, or customers, no matter where the attendees are physically located.
+Video conferencing software enables online communication for audio meetings, video meetings, and seminars, with built-in features such as chat. This application is implemented to enable long-distance or international communication, enhance collaboration, and reduce travel costs. Employees at every level within an organization can use video conferencing tools to host or attend virtual meetings with fellow employees, company partners, or customers, no matter where the attendees are physically located.
 
 ## Getting Started
 
